@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yuki Soejima | フルスタックエンジニア</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --card: #1e293b;
+      --border: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+      background: var(--primary);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%;
+      background: rgba(15,23,42,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    nav .logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    nav ul a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent);
+      font-size: 0.8rem;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* SECTION */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .section-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .section-sub {
+      color: var(--muted);
+      margin-bottom: 3rem;
+      font-size: 0.95rem;
+    }
+    .divider {
+      width: 48px; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      margin: 0.7rem 0 1rem;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .skill-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .skill-card h3 {
+      font-size: 0.85rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: var(--text);
+      font-size: 0.8rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+    }
+
+    /* WORKS */
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .work-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .work-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .work-thumb {
+      height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+    }
+    .work-body { padding: 1.5rem; }
+    .work-label {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+    .work-body h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .work-body p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem; }
+    .work-link {
+      font-size: 0.85rem;
+      color: var(--accent);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .work-link::after { content: '→'; }
+
+    /* PROFILE */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .profile-left {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1rem;
+    }
+    .profile-left h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .profile-left p { font-size: 0.85rem; color: var(--muted); }
+    .profile-right p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    .available-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #4ade80;
+      font-size: 0.82rem;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-top: 0.5rem;
+    }
+    .available-badge::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* CONTACT */
+    .contact-box {
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.1));
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+    }
+    .contact-box h3 { font-size: 1.5rem; margin-bottom: 0.8rem; }
+    .contact-box p { color: var(--muted); margin-bottom: 2rem; }
+    .contact-hours {
+      display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .hour-item { font-size: 0.9rem; color: var(--muted); }
+    .hour-item strong { color: var(--text); display: block; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 700px) {
+      nav ul { display: none; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">YS Portfolio</div>
+  <ul>
+    <li><a href="#skills">スキル</a></li>
+    <li><a href="#works">作品</a></li>
+    <li><a href="#about">プロフィール</a></li>
+    <li><a href="#contact">お問い合わせ</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">フルスタックエンジニア / AI自動化専門</div>
+  <h1>ビジネスを<span>自動化</span>する<br>エンジニア</h1>
+  <p>Web開発・業務自動化・AIソリューションまで一貫対応。売上向上・コスト削減・業務効率化を技術で実現します。</p>
+  <div class="hero-btns">
+    <a href="#works" class="btn btn-primary">作品を見る</a>
+    <a href="#contact" class="btn btn-outline">相談する</a>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-title">Tech <span>Skills</span></div>
+  <div class="divider"></div>
+  <p class="section-sub">3年以上の実務経験で培った技術スタック</p>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <h3>言語</h3>
+      <div class="skill-tags">
+        <span class="tag">Python</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">PHP</span>
+        <span class="tag">Swift</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">MySQL</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <h3>フレームワーク</h3>
+      <div class="skill-tags">
+        <span class="tag">Vue.js</span>
+        <span class="tag">Nuxt.js</span>
+        <span class="tag">Flutter</span>
+        <span class="tag">WordPress</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <h3>Bot・API連携</h3>
+      <div class="skill-tags">
+        <span class="tag">LINE Messaging API</span>
+        <span class="tag">Discord Bot</span>
+        <span class="tag">Webhook</span>
+        <span class="tag">REST API</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <h3>自動化・AI</h3>
+      <div class="skill-tags">
+        <span class="tag">業務自動化</span>
+        <span class="tag">スクレイピング</span>
+        <span class="tag">株自動化</span>
+        <span class="tag">AI連携</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKS -->
+<section id="works">
+  <div class="section-title">Portfolio <span>Works</span></div>
+  <div class="divider"></div>
+  <p class="section-sub">実際に動くデモをご確認いただけます</p>
+  <div class="works-grid">
+
+    <a class="work-card" href="./lp-demo/">
+      <div class="work-thumb" style="background: linear-gradient(135deg,#1e3a5f,#1e293b);">🏢</div>
+      <div class="work-body">
+        <div class="work-label">Webデザイン</div>
+        <h3>コーポレートLP制作</h3>
+        <p>企業向けサービス紹介ランディングページ。レスポンシブ対応・CTA最適化済みのデモ。</p>
+        <span class="work-link">デモを見る</span>
+      </div>
+    </a>
+
+    <a class="work-card" href="./dashboard/">
+      <div class="work-thumb" style="background: linear-gradient(135deg,#0f2e1e,#1e293b);">📊</div>
+      <div class="work-body">
+        <div class="work-label">業務システム</div>
+        <h3>業務自動化ダッシュボード</h3>
+        <p>KPI可視化・タスク管理・自動レポート生成機能を備えた業務支援Webアプリのデモ。</p>
+        <span class="work-link">デモを見る</span>
+      </div>
+    </a>
+
+    <a class="work-card" href="./bot-demo/">
+      <div class="work-thumb" style="background: linear-gradient(135deg,#1a1f3c,#1e293b);">🤖</div>
+      <div class="work-body">
+        <div class="work-label">Bot開発</div>
+        <h3>LINE / Discord Bot</h3>
+        <p>自動返信・予約管理・顧客対応の自動化。LINE Messaging API / Discord Bot の開発実績。</p>
+        <span class="work-link">デモを見る</span>
+      </div>
+    </a>
+
+    <a class="work-card" href="./stock-tool/">
+      <div class="work-thumb" style="background: linear-gradient(135deg,#2d1b00,#1e293b);">📈</div>
+      <div class="work-body">
+        <div class="work-label">自動化ツール</div>
+        <h3>株式自動化ツール</h3>
+        <p>Pythonによる株価スクレイピング・シグナル検知・自動売買補助ツールの紹介。</p>
+        <span class="work-link">デモを見る</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-title">About <span>Me</span></div>
+  <div class="divider"></div>
+  <p class="section-sub">エンジニアとしての姿勢と得意領域</p>
+  <div class="profile-grid">
+    <div class="profile-left">
+      <div class="avatar">👨‍💻</div>
+      <h3>Yuki Soejima</h3>
+      <p>フルスタックエンジニア</p>
+      <p style="margin-top:0.5rem">経験年数：3年以上</p>
+      <div class="available-badge">受注可能</div>
+    </div>
+    <div class="profile-right">
+      <p>フルスタックエンジニアとして、Webシステム・モバイルアプリ・業務自動化・AIソリューション開発まで幅広く対応しています。</p>
+      <p>単なる機能実装ではなく、<strong>「売上向上・コスト削減・業務効率化」</strong>という事業成果を重視した開発を行います。特に「人が行っていた業務をAIで自動化する仕組み」の構築を得意としています。</p>
+      <p>要件整理から設計・実装・運用まで責任を持って対応し、長期的なパートナーとしてお客様のビジネス成長に貢献します。</p>
+      <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
+          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">3+</div>
+          <div style="font-size:0.8rem;color:var(--muted)">年の経験</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
+          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">50+</div>
+          <div style="font-size:0.8rem;color:var(--muted)">プロジェクト</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
+          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">10+</div>
+          <div style="font-size:0.8rem;color:var(--muted)">技術スタック</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-box">
+    <h3>お気軽にご相談ください</h3>
+    <p>まずは要件をお聞かせください。最適なご提案をいたします。</p>
+    <div class="contact-hours">
+      <div class="hour-item"><strong>平日</strong>19:00 〜 22:00</div>
+      <div class="hour-item"><strong>休日</strong>9:00 〜 17:00</div>
+    </div>
+    <a href="https://crowdworks.jp" class="btn btn-primary" target="_blank" rel="noopener">CrowdWorksで依頼する</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Yuki Soejima. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
