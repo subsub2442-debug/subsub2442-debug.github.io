@@ -6,38 +6,55 @@
   <title>Yuki Soejima | フルスタックエンジニア</title>
   <style>
     :root {
-      --primary: #0f172a;
-      --accent: #3b82f6;
-      --accent2: #06b6d4;
-      --text: #e2e8f0;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-dark: #1d4ed8;
+      --text: #0f172a;
+      --sub: #475569;
       --muted: #94a3b8;
-      --card: #1e293b;
-      --border: #334155;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --green: #16a34a;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
-      background: var(--primary);
-      color: var(--text);
-      line-height: 1.7;
-    }
+    body { font-family: 'Hiragino Sans', 'Segoe UI', sans-serif; background: var(--white); color: var(--text); line-height: 1.7; }
 
     /* NAV */
     nav {
       position: fixed; top: 0; width: 100%;
-      background: rgba(15,23,42,0.92);
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       z-index: 100;
       padding: 0 2rem;
       display: flex; align-items: center; justify-content: space-between;
       height: 60px;
+      box-shadow: var(--shadow);
     }
-    nav .logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+    .logo { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
     nav ul { list-style: none; display: flex; gap: 2rem; }
-    nav ul a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-    nav ul a:hover { color: var(--text); }
+    nav ul a { color: var(--sub); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; }
+    nav ul a:hover { color: var(--primary); }
+    .nav-cta {
+      background: var(--primary); color: white;
+      padding: 0.45rem 1.2rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--primary-dark); }
+
+    /* ANIMATIONS */
+    .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up.delay-1 { transition-delay: 0.1s; }
+    .fade-up.delay-2 { transition-delay: 0.2s; }
+    .fade-up.delay-3 { transition-delay: 0.3s; }
+    .fade-up.delay-4 { transition-delay: 0.4s; }
 
     /* HERO */
     .hero {
@@ -45,233 +62,189 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
       padding: 6rem 2rem 4rem;
-      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 70%);
+      background: linear-gradient(160deg, #f0f7ff 0%, #ffffff 50%, #f5f3ff 100%);
     }
     .hero-badge {
-      display: inline-block;
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.3);
-      color: var(--accent);
-      font-size: 0.8rem;
-      padding: 0.3rem 1rem;
-      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--primary-light);
+      border: 1px solid #bfdbfe;
+      color: var(--primary);
+      font-size: 0.8rem; font-weight: 600;
+      padding: 0.3rem 1rem; border-radius: 999px;
       margin-bottom: 1.5rem;
-      letter-spacing: 0.05em;
     }
     .hero h1 {
       font-size: clamp(2.2rem, 6vw, 4rem);
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 1rem;
+      font-weight: 900; line-height: 1.15;
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
     }
     .hero h1 span {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .hero p {
-      max-width: 600px;
-      color: var(--muted);
-      font-size: 1.05rem;
-      margin-bottom: 2.5rem;
-    }
-    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .hero p { max-width: 580px; color: var(--sub); font-size: 1.05rem; margin-bottom: 2.5rem; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 4rem; }
     .btn {
-      padding: 0.75rem 2rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
+      padding: 0.75rem 2rem; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; transition: all 0.2s; cursor: pointer;
     }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      border: none;
+    .btn-primary { background: var(--primary); color: white; border: 2px solid var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
+    .btn-outline { background: white; color: var(--text); border: 2px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .hero-stats {
+      display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
     }
-    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 900; color: var(--primary); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
 
     /* SECTION */
-    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    section { padding: 5rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-bg { background: var(--bg); }
+    .section-tag {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--primary); text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 0.6rem;
+    }
     .section-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
     }
-    .section-title span {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .section-sub {
-      color: var(--muted);
-      margin-bottom: 3rem;
-      font-size: 0.95rem;
-    }
-    .divider {
-      width: 48px; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 2px;
-      margin: 0.7rem 0 1rem;
-    }
+    .section-sub { color: var(--sub); max-width: 520px; font-size: 0.95rem; margin-bottom: 3rem; }
+    .divider { width: 40px; height: 3px; background: linear-gradient(90deg, var(--primary), #7c3aed); border-radius: 2px; margin: 0.6rem 0 1rem; }
 
     /* SKILLS */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
     .skill-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: border-color 0.2s, transform 0.2s;
+      background: white; border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
     }
-    .skill-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .skill-card h3 {
-      font-size: 0.85rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 1rem;
-    }
-    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .skill-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: #bfdbfe; }
+    .skill-card h3 { font-size: 0.78rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; font-weight: 700; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .tag {
-      background: rgba(59,130,246,0.1);
-      border: 1px solid rgba(59,130,246,0.2);
-      color: var(--text);
-      font-size: 0.8rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 6px;
+      background: var(--primary-light); border: 1px solid #bfdbfe;
+      color: var(--primary); font-size: 0.78rem;
+      padding: 0.2rem 0.7rem; border-radius: 6px; font-weight: 500;
     }
 
     /* WORKS */
-    .works-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
+    .works-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
     .work-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+      background: white; border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.2s, transform 0.2s;
+      text-decoration: none; color: inherit; display: block;
     }
-    .work-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .work-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
     .work-thumb {
-      height: 160px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3rem;
+      height: 160px; display: flex;
+      align-items: center; justify-content: center; font-size: 3rem;
     }
     .work-body { padding: 1.5rem; }
-    .work-label {
-      font-size: 0.75rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.5rem;
-    }
-    .work-body h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .work-body p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem; }
-    .work-link {
-      font-size: 0.85rem;
-      color: var(--accent);
-      display: flex; align-items: center; gap: 0.3rem;
-    }
-    .work-link::after { content: '→'; }
+    .work-label { font-size: 0.72rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 700; }
+    .work-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .work-body p { font-size: 0.85rem; color: var(--sub); margin-bottom: 1rem; line-height: 1.6; }
+    .work-link { font-size: 0.83rem; color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+    .work-link::after { content: '→'; transition: transform 0.2s; }
+    .work-card:hover .work-link::after { transform: translateX(4px); }
 
-    /* PROFILE */
-    .profile-grid {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 3rem;
-      align-items: start;
-    }
-    .profile-left {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      text-align: center;
+    /* ABOUT */
+    .about-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: start; }
+    .about-left {
+      background: white; border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem; text-align: center;
+      box-shadow: var(--shadow);
     }
     .avatar {
-      width: 100px; height: 100px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem;
-      margin: 0 auto 1rem;
+      font-size: 2.5rem; margin: 0 auto 1rem;
     }
-    .profile-left h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
-    .profile-left p { font-size: 0.85rem; color: var(--muted); }
-    .profile-right p {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      line-height: 1.8;
-    }
+    .about-left h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .about-left p { font-size: 0.85rem; color: var(--sub); }
     .available-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.3);
-      color: #4ade80;
-      font-size: 0.82rem;
-      padding: 0.35rem 1rem;
-      border-radius: 999px;
-      margin-top: 0.5rem;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: #dcfce7; border: 1px solid #bbf7d0;
+      color: var(--green); font-size: 0.78rem; font-weight: 600;
+      padding: 0.3rem 0.9rem; border-radius: 999px; margin-top: 1rem;
     }
-    .available-badge::before {
-      content: '';
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #4ade80;
-      animation: pulse 1.5s infinite;
+    .available-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .about-right p { color: var(--sub); margin-bottom: 1rem; line-height: 1.8; }
+    .kpi-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .kpi-item {
+      background: white; border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.5rem; text-align: center;
+      box-shadow: var(--shadow);
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-    }
+    .kpi-num { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
+    .kpi-label { font-size: 0.75rem; color: var(--muted); }
 
-    /* CONTACT */
-    .contact-box {
-      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.1));
-      border: 1px solid rgba(59,130,246,0.2);
-      border-radius: 16px;
-      padding: 3rem;
-      text-align: center;
+    /* CONTACT FORM */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .contact-info h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
+    .contact-info p { color: var(--sub); font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.8; }
+    .hours-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .hour-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+    .hour-row .day { font-weight: 600; }
+    .hour-row .time { color: var(--sub); }
+
+    .contact-form { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-md); }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: 0.7rem 1rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 0.9rem; font-family: inherit; color: var(--text);
+      background: #fafafa; transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
     }
-    .contact-box h3 { font-size: 1.5rem; margin-bottom: 0.8rem; }
-    .contact-box p { color: var(--muted); margin-bottom: 2rem; }
-    .contact-hours {
-      display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
-      margin-bottom: 2rem;
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .submit-btn {
+      width: 100%; padding: 0.85rem;
+      background: var(--primary); color: white;
+      border: none; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
     }
-    .hour-item { font-size: 0.9rem; color: var(--muted); }
-    .hour-item strong { color: var(--text); display: block; }
+    .submit-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .form-success {
+      display: none;
+      background: #dcfce7; border: 1px solid #bbf7d0;
+      border-radius: 8px; padding: 1rem;
+      color: var(--green); font-weight: 600; text-align: center;
+      margin-top: 1rem;
+    }
+    .form-success.show { display: block; }
 
     /* FOOTER */
-    footer {
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 2rem;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
+    footer { background: var(--text); color: #94a3b8; text-align: center; padding: 2rem; font-size: 0.85rem; }
+    footer a { color: #94a3b8; text-decoration: none; }
 
-    @media (max-width: 700px) {
+    @media (max-width: 768px) {
       nav ul { display: none; }
-      .profile-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -285,61 +258,62 @@
     <li><a href="#about">プロフィール</a></li>
     <li><a href="#contact">お問い合わせ</a></li>
   </ul>
+  <a href="#contact" class="nav-cta">相談する</a>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">フルスタックエンジニア / AI自動化専門</div>
-  <h1>ビジネスを<span>自動化</span>する<br>エンジニア</h1>
-  <p>Web開発・業務自動化・AIソリューションまで一貫対応。売上向上・コスト削減・業務効率化を技術で実現します。</p>
-  <div class="hero-btns">
+  <div class="hero-badge fade-up">✦ フルスタックエンジニア / AI自動化専門</div>
+  <h1 class="fade-up delay-1">ビジネスを<span>自動化</span>する<br>エンジニア</h1>
+  <p class="fade-up delay-2">Web開発・業務自動化・AIソリューションまで一貫対応。<br>売上向上・コスト削減・業務効率化を技術で実現します。</p>
+  <div class="hero-btns fade-up delay-3">
     <a href="#works" class="btn btn-primary">作品を見る</a>
     <a href="#contact" class="btn btn-outline">相談する</a>
+  </div>
+  <div class="hero-stats fade-up delay-4">
+    <div class="stat-item"><div class="stat-num">3+</div><div class="stat-label">年の経験</div></div>
+    <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">プロジェクト</div></div>
+    <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label">技術スタック</div></div>
+    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">納品率</div></div>
   </div>
 </div>
 
 <!-- SKILLS -->
-<section id="skills">
-  <div class="section-title">Tech <span>Skills</span></div>
-  <div class="divider"></div>
-  <p class="section-sub">3年以上の実務経験で培った技術スタック</p>
-  <div class="skills-grid">
-    <div class="skill-card">
-      <h3>言語</h3>
-      <div class="skill-tags">
-        <span class="tag">Python</span>
-        <span class="tag">JavaScript</span>
-        <span class="tag">PHP</span>
-        <span class="tag">Swift</span>
-        <span class="tag">Node.js</span>
-        <span class="tag">MySQL</span>
+<section id="skills" class="section-bg">
+  <div class="section-inner">
+    <div class="section-tag fade-up">Tech Skills</div>
+    <h2 class="section-title fade-up">3年以上の実務で培った<br>技術スタック</h2>
+    <div class="divider fade-up"></div>
+    <p class="section-sub fade-up">フロントエンドからバックエンド・自動化・Bot開発まで幅広く対応します。</p>
+    <div class="skills-grid">
+      <div class="skill-card fade-up delay-1">
+        <h3>言語</h3>
+        <div class="skill-tags">
+          <span class="tag">Python</span><span class="tag">JavaScript</span>
+          <span class="tag">PHP</span><span class="tag">Swift</span>
+          <span class="tag">Node.js</span><span class="tag">MySQL</span>
+        </div>
       </div>
-    </div>
-    <div class="skill-card">
-      <h3>フレームワーク</h3>
-      <div class="skill-tags">
-        <span class="tag">Vue.js</span>
-        <span class="tag">Nuxt.js</span>
-        <span class="tag">Flutter</span>
-        <span class="tag">WordPress</span>
+      <div class="skill-card fade-up delay-2">
+        <h3>フレームワーク</h3>
+        <div class="skill-tags">
+          <span class="tag">Vue.js</span><span class="tag">Nuxt.js</span>
+          <span class="tag">Flutter</span><span class="tag">WordPress</span>
+        </div>
       </div>
-    </div>
-    <div class="skill-card">
-      <h3>Bot・API連携</h3>
-      <div class="skill-tags">
-        <span class="tag">LINE Messaging API</span>
-        <span class="tag">Discord Bot</span>
-        <span class="tag">Webhook</span>
-        <span class="tag">REST API</span>
+      <div class="skill-card fade-up delay-3">
+        <h3>Bot・API連携</h3>
+        <div class="skill-tags">
+          <span class="tag">LINE Messaging API</span><span class="tag">Discord Bot</span>
+          <span class="tag">Webhook</span><span class="tag">REST API</span>
+        </div>
       </div>
-    </div>
-    <div class="skill-card">
-      <h3>自動化・AI</h3>
-      <div class="skill-tags">
-        <span class="tag">業務自動化</span>
-        <span class="tag">スクレイピング</span>
-        <span class="tag">株自動化</span>
-        <span class="tag">AI連携</span>
+      <div class="skill-card fade-up delay-4">
+        <h3>自動化・AI</h3>
+        <div class="skill-tags">
+          <span class="tag">業務自動化</span><span class="tag">スクレイピング</span>
+          <span class="tag">株自動化</span><span class="tag">AI連携</span>
+        </div>
       </div>
     </div>
   </div>
@@ -347,83 +321,74 @@
 
 <!-- WORKS -->
 <section id="works">
-  <div class="section-title">Portfolio <span>Works</span></div>
-  <div class="divider"></div>
-  <p class="section-sub">実際に動くデモをご確認いただけます</p>
-  <div class="works-grid">
-
-    <a class="work-card" href="./lp-demo/">
-      <div class="work-thumb" style="background: linear-gradient(135deg,#1e3a5f,#1e293b);">🏢</div>
-      <div class="work-body">
-        <div class="work-label">Webデザイン</div>
-        <h3>コーポレートLP制作</h3>
-        <p>企業向けサービス紹介ランディングページ。レスポンシブ対応・CTA最適化済みのデモ。</p>
-        <span class="work-link">デモを見る</span>
-      </div>
-    </a>
-
-    <a class="work-card" href="./dashboard/">
-      <div class="work-thumb" style="background: linear-gradient(135deg,#0f2e1e,#1e293b);">📊</div>
-      <div class="work-body">
-        <div class="work-label">業務システム</div>
-        <h3>業務自動化ダッシュボード</h3>
-        <p>KPI可視化・タスク管理・自動レポート生成機能を備えた業務支援Webアプリのデモ。</p>
-        <span class="work-link">デモを見る</span>
-      </div>
-    </a>
-
-    <a class="work-card" href="./bot-demo/">
-      <div class="work-thumb" style="background: linear-gradient(135deg,#1a1f3c,#1e293b);">🤖</div>
-      <div class="work-body">
-        <div class="work-label">Bot開発</div>
-        <h3>LINE / Discord Bot</h3>
-        <p>自動返信・予約管理・顧客対応の自動化。LINE Messaging API / Discord Bot の開発実績。</p>
-        <span class="work-link">デモを見る</span>
-      </div>
-    </a>
-
-    <a class="work-card" href="./stock-tool/">
-      <div class="work-thumb" style="background: linear-gradient(135deg,#2d1b00,#1e293b);">📈</div>
-      <div class="work-body">
-        <div class="work-label">自動化ツール</div>
-        <h3>株式自動化ツール</h3>
-        <p>Pythonによる株価スクレイピング・シグナル検知・自動売買補助ツールの紹介。</p>
-        <span class="work-link">デモを見る</span>
-      </div>
-    </a>
-
+  <div class="section-inner">
+    <div class="section-tag fade-up">Portfolio Works</div>
+    <h2 class="section-title fade-up">実際に動くデモ</h2>
+    <div class="divider fade-up"></div>
+    <p class="section-sub fade-up">各作品はクリックして実際のデモをご確認いただけます。</p>
+    <div class="works-grid">
+      <a class="work-card fade-up delay-1" href="./lp-demo/">
+        <div class="work-thumb" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe)">🏢</div>
+        <div class="work-body">
+          <div class="work-label">Webデザイン</div>
+          <h3>コーポレートLP制作</h3>
+          <p>企業向けサービス紹介LP。レスポンシブ対応・CTA最適化済みのデモ。</p>
+          <span class="work-link">デモを見る</span>
+        </div>
+      </a>
+      <a class="work-card fade-up delay-2" href="./dashboard/">
+        <div class="work-thumb" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">📊</div>
+        <div class="work-body">
+          <div class="work-label">業務システム</div>
+          <h3>業務自動化ダッシュボード</h3>
+          <p>KPI可視化・タスク管理・自動レポート生成を備えた業務支援アプリ。</p>
+          <span class="work-link">デモを見る</span>
+        </div>
+      </a>
+      <a class="work-card fade-up delay-3" href="./bot-demo/">
+        <div class="work-thumb" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe)">🤖</div>
+        <div class="work-body">
+          <div class="work-label">Bot開発</div>
+          <h3>LINE / Discord Bot</h3>
+          <p>自動返信・予約管理・顧客対応の自動化。実際にチャットを体験できます。</p>
+          <span class="work-link">デモを見る</span>
+        </div>
+      </a>
+      <a class="work-card fade-up delay-4" href="./stock-tool/">
+        <div class="work-thumb" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">📈</div>
+        <div class="work-body">
+          <div class="work-label">自動化ツール</div>
+          <h3>株式自動化ツール</h3>
+          <p>Pythonによる株価スクレイピング・シグナル検知・リアルタイム価格表示。</p>
+          <span class="work-link">デモを見る</span>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
 
 <!-- ABOUT -->
-<section id="about">
-  <div class="section-title">About <span>Me</span></div>
-  <div class="divider"></div>
-  <p class="section-sub">エンジニアとしての姿勢と得意領域</p>
-  <div class="profile-grid">
-    <div class="profile-left">
-      <div class="avatar">👨‍💻</div>
-      <h3>Yuki Soejima</h3>
-      <p>フルスタックエンジニア</p>
-      <p style="margin-top:0.5rem">経験年数：3年以上</p>
-      <div class="available-badge">受注可能</div>
-    </div>
-    <div class="profile-right">
-      <p>フルスタックエンジニアとして、Webシステム・モバイルアプリ・業務自動化・AIソリューション開発まで幅広く対応しています。</p>
-      <p>単なる機能実装ではなく、<strong>「売上向上・コスト削減・業務効率化」</strong>という事業成果を重視した開発を行います。特に「人が行っていた業務をAIで自動化する仕組み」の構築を得意としています。</p>
-      <p>要件整理から設計・実装・運用まで責任を持って対応し、長期的なパートナーとしてお客様のビジネス成長に貢献します。</p>
-      <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">3+</div>
-          <div style="font-size:0.8rem;color:var(--muted)">年の経験</div>
-        </div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">50+</div>
-          <div style="font-size:0.8rem;color:var(--muted)">プロジェクト</div>
-        </div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;text-align:center;">
-          <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">10+</div>
-          <div style="font-size:0.8rem;color:var(--muted)">技術スタック</div>
+<section id="about" class="section-bg">
+  <div class="section-inner">
+    <div class="section-tag fade-up">About Me</div>
+    <h2 class="section-title fade-up">プロフィール</h2>
+    <div class="divider fade-up"></div>
+    <div class="about-grid">
+      <div class="about-left fade-up">
+        <div class="avatar">👨‍💻</div>
+        <h3>Yuki Soejima</h3>
+        <p>フルスタックエンジニア</p>
+        <p style="margin-top:0.3rem;font-size:0.8rem;color:var(--muted)">経験年数：3年以上</p>
+        <div class="available-badge">受注可能</div>
+      </div>
+      <div class="about-right fade-up delay-2">
+        <p>フルスタックエンジニアとして、Webシステム・モバイルアプリ・業務自動化・AIソリューション開発まで幅広く対応しています。</p>
+        <p>単なる機能実装ではなく、<strong>「売上向上・コスト削減・業務効率化」</strong>という事業成果を重視した開発を行います。特に「人が行っていた業務をAIで自動化する仕組み」の構築を得意としています。</p>
+        <p>要件整理から設計・実装・運用まで責任を持って対応し、長期的なパートナーとしてお客様のビジネス成長に貢献します。</p>
+        <div class="kpi-row">
+          <div class="kpi-item"><div class="kpi-num">3+</div><div class="kpi-label">年の経験</div></div>
+          <div class="kpi-item"><div class="kpi-num">50+</div><div class="kpi-label">プロジェクト</div></div>
+          <div class="kpi-item"><div class="kpi-num">10+</div><div class="kpi-label">技術スタック</div></div>
         </div>
       </div>
     </div>
@@ -432,20 +397,98 @@
 
 <!-- CONTACT -->
 <section id="contact">
-  <div class="contact-box">
-    <h3>お気軽にご相談ください</h3>
-    <p>まずは要件をお聞かせください。最適なご提案をいたします。</p>
-    <div class="contact-hours">
-      <div class="hour-item"><strong>平日</strong>19:00 〜 22:00</div>
-      <div class="hour-item"><strong>休日</strong>9:00 〜 17:00</div>
+  <div class="section-inner">
+    <div class="section-tag fade-up">Contact</div>
+    <h2 class="section-title fade-up">お問い合わせ</h2>
+    <div class="divider fade-up"></div>
+    <div class="contact-grid">
+      <div class="contact-info fade-up">
+        <h3>お気軽にご相談ください</h3>
+        <p>まずは要件をお聞かせください。最適なご提案をいたします。概算のお見積もりも対応します。</p>
+        <div class="hours-list">
+          <div class="hour-row"><span class="day">平日</span><span class="time">19:00 〜 22:00</span></div>
+          <div class="hour-row"><span class="day">土日祝</span><span class="time">9:00 〜 17:00</span></div>
+          <div class="hour-row"><span class="day">返信目安</span><span class="time">24時間以内</span></div>
+        </div>
+      </div>
+      <div class="contact-form fade-up delay-2">
+        <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label>お名前 *</label>
+              <input type="text" name="name" placeholder="山田 太郎" required />
+            </div>
+            <div class="form-group">
+              <label>会社名</label>
+              <input type="text" name="company" placeholder="株式会社〇〇" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>メールアドレス *</label>
+            <input type="email" name="email" placeholder="example@email.com" required />
+          </div>
+          <div class="form-group">
+            <label>ご依頼内容</label>
+            <select name="category">
+              <option value="">選択してください</option>
+              <option>Webサイト・LP制作</option>
+              <option>業務自動化システム</option>
+              <option>LINE / Discord Bot開発</option>
+              <option>株自動化ツール</option>
+              <option>モバイルアプリ開発</option>
+              <option>その他・ご相談</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ご要望・詳細 *</label>
+            <textarea name="message" placeholder="お気軽にご相談内容をご記入ください..." required></textarea>
+          </div>
+          <button type="submit" class="submit-btn" id="submitBtn">送信する →</button>
+          <div class="form-success" id="formSuccess">✅ 送信完了しました！24時間以内にご返信いたします。</div>
+        </form>
+      </div>
     </div>
-    <a href="https://crowdworks.jp" class="btn btn-primary" target="_blank" rel="noopener">CrowdWorksで依頼する</a>
   </div>
 </section>
 
 <footer>
   <p>© 2025 Yuki Soejima. All rights reserved.</p>
 </footer>
+
+<script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Contact form
+  const form = document.getElementById('contactForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.reset();
+        document.getElementById('formSuccess').classList.add('show');
+        btn.textContent = '送信完了';
+      } else {
+        throw new Error();
+      }
+    } catch {
+      btn.disabled = false;
+      btn.textContent = '送信する →';
+      alert('送信に失敗しました。CrowdWorksよりご連絡ください。');
+    }
+  });
+</script>
 
 </body>
 </html>
