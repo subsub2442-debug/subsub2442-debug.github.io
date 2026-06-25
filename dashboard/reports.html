@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>レポート | AutoBiz</title>
+  <style>
+    :root{--primary:#2563eb;--primary-light:#eff6ff;--text:#0f172a;--sub:#475569;--muted:#94a3b8;--border:#e2e8f0;--bg:#f8fafc;--white:#fff;--green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--yellow:#d97706;--purple:#7c3aed;--shadow:0 1px 3px rgba(0,0,0,0.07);--shadow-md:0 4px 12px rgba(0,0,0,0.08);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+    .sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:var(--shadow);}
+    .sidebar-logo{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);}
+    .sidebar-logo .lt{font-size:1rem;font-weight:800;color:var(--primary);}
+    .sidebar-logo .ls{font-size:0.7rem;color:var(--muted);margin-top:0.1rem;}
+    .sidebar-nav{padding:0.8rem 0;flex:1;}
+    .ng{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0.5rem 1.5rem;margin-top:0.3rem;}
+    .nav-item{display:flex;align-items:center;gap:0.7rem;padding:0.55rem 1.5rem;color:var(--sub);font-size:0.85rem;border-left:3px solid transparent;text-decoration:none;transition:all 0.15s;}
+    .nav-item:hover{color:var(--primary);background:var(--primary-light);}
+    .nav-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+    .su{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+    .sa{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;}
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:10;box-shadow:var(--shadow);}
+    .topbar-title{font-size:0.95rem;font-weight:700;}
+    .content{padding:1.5rem;}
+
+    /* PERIOD TABS */
+    .period-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px;width:fit-content;margin-bottom:1.5rem;}
+    .period-tab{padding:0.35rem 1rem;border-radius:7px;border:none;font-size:0.82rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;}
+    .period-tab.active{background:var(--white);color:var(--primary);box-shadow:var(--shadow);}
+
+    /* KPI ROW */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .kpi{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.1rem;box-shadow:var(--shadow);}
+    .kpi-l{font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem;}
+    .kpi-v{font-size:1.4rem;font-weight:800;margin-bottom:0.2rem;}
+    .kpi-c{font-size:0.74rem;font-weight:600;}
+
+    /* CHARTS GRID */
+    .charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.2rem;box-shadow:var(--shadow);}
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .card-title{font-size:0.88rem;font-weight:700;}
+    .export-btn{padding:0.3rem 0.8rem;border:1px solid var(--border);background:var(--white);border-radius:6px;font-size:0.75rem;color:var(--sub);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:0.3rem;}
+    .export-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+    /* LINE CHART */
+    .chart-wrap{position:relative;width:100%;height:160px;}
+    .chart-wrap svg{width:100%;height:100%;}
+
+    /* BAR H */
+    .bar-h-item{margin-bottom:0.8rem;}
+    .bar-h-header{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.3rem;}
+    .bar-h-label{color:var(--sub);}
+    .bar-h-val{font-weight:700;}
+    .bar-h-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .bar-h-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+
+    /* TABLE */
+    .data-table{width:100%;border-collapse:collapse;}
+    .data-table th{padding:0.6rem 1rem;text-align:left;font-size:0.73rem;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--bg);}
+    .data-table td{padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-size:0.84rem;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr:hover td{background:var(--bg);}
+    .badge{font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:5px;}
+
+    .back-link{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--primary);color:white;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.82rem;text-decoration:none;z-index:200;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.kpi-row{grid-template-columns:repeat(2,1fr);}.charts-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<a href="../" class="back-link">← ポートフォリオへ</a>
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="lt">AutoBiz</div><div class="ls">業務自動化プラットフォーム</div></div>
+  <nav class="sidebar-nav">
+    <div class="ng">メニュー</div>
+    <a class="nav-item" href="./index.html">📊 ダッシュボード</a>
+    <a class="nav-item" href="./tasks.html">📋 タスク管理</a>
+    <a class="nav-item active" href="./reports.html">📄 レポート</a>
+    <a class="nav-item" href="./team.html">👥 チーム</a>
+    <div class="ng">自動化</div>
+    <a class="nav-item" href="./workflow.html">⚡ ワークフロー</a>
+    <a class="nav-item" href="#">🔗 API連携</a>
+    <a class="nav-item" href="#">🤖 AI補助</a>
+  </nav>
+  <div class="su"><div class="sa">YS</div><div><div style="font-size:0.82rem;font-weight:600">Yuki Soejima</div><div style="font-size:0.7rem;color:var(--muted)">管理者</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📄 レポート・分析</div>
+    <div style="display:flex;gap:0.6rem">
+      <button class="export-btn" onclick="alert('CSVエクスポート（デモ）')">📥 CSV</button>
+      <button class="export-btn" onclick="alert('PDFエクスポート（デモ）')">📄 PDF</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <div class="period-tabs">
+      <button class="period-tab" onclick="setPeriod(this,'week')">週次</button>
+      <button class="period-tab active" onclick="setPeriod(this,'month')">月次</button>
+      <button class="period-tab" onclick="setPeriod(this,'quarter')">四半期</button>
+      <button class="period-tab" onclick="setPeriod(this,'year')">年次</button>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-l">総売上</div><div class="kpi-v" style="color:var(--primary)" id="kv1">¥4,820,000</div><div class="kpi-c" style="color:var(--green)">▲ +12.4%</div></div>
+      <div class="kpi"><div class="kpi-l">粗利益</div><div class="kpi-v" style="color:var(--green)" id="kv2">¥2,940,000</div><div class="kpi-c" style="color:var(--green)">▲ +8.2%</div></div>
+      <div class="kpi"><div class="kpi-l">成約件数</div><div class="kpi-v" id="kv3">47件</div><div class="kpi-c" style="color:var(--green)">▲ +5件</div></div>
+      <div class="kpi"><div class="kpi-l">自動処理削減</div><div class="kpi-v" style="color:var(--purple)" id="kv4">186h</div><div class="kpi-c" style="color:var(--green)">▲ +23h</div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">売上推移</span>
+          <button class="export-btn" onclick="alert('グラフ画像をダウンロード（デモ）')">⬇ 保存</button>
+        </div>
+        <div class="chart-wrap">
+          <svg id="lineChart" viewBox="0 0 700 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2563eb" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="35" x2="700" y2="35" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <line x1="0" y1="70" x2="700" y2="70" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <line x1="0" y1="105" x2="700" y2="105" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <path id="lineArea" fill="url(#blueGrad)"/>
+            <path id="linePath" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+            <path id="linePath2" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,3"/>
+            <g id="linePoints"></g>
+            <text x="2" y="32" fill="#94a3b8" font-size="9">¥5.5M</text>
+            <text x="2" y="67" fill="#94a3b8" font-size="9">¥4.0M</text>
+            <text x="2" y="102" fill="#94a3b8" font-size="9">¥2.5M</text>
+          </svg>
+        </div>
+        <div id="monthLabels" style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--muted);margin-top:0.4rem;padding:0 2px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">カテゴリ別売上</span></div>
+        <div id="barHChart"></div>
+      </div>
+    </div>
+
+    <!-- TRANSACTION TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">取引履歴</span>
+        <button class="export-btn" onclick="alert('CSVダウンロード（デモ）')">📥 エクスポート</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>日付</th><th>取引先</th><th>内容</th><th>金額</th><th>ステータス</th></tr></thead>
+        <tbody id="txBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const periods = {
+    week: {sales:[120,180,95,210,160,240,195], labels:['月','火','水','木','金','土','日'], kv1:'¥1,200,000',kv2:'¥730,000',kv3:'11件',kv4:'42h'},
+    month:{sales:[320,410,380,450,490,482,520,510,545,530,560,482], labels:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], kv1:'¥4,820,000',kv2:'¥2,940,000',kv3:'47件',kv4:'186h'},
+    quarter:{sales:[950,1200,1480], labels:['Q1','Q2','Q3'], kv1:'¥3,630,000',kv2:'¥2,200,000',kv3:'128件',kv4:'540h'},
+    year:{sales:[3800,4200,4820], labels:['2023','2024','2025'], kv1:'¥12,820,000',kv2:'¥7,810,000',kv3:'432件',kv4:'1,840h'},
+  };
+
+  const categories = [
+    {label:'Webシステム開発',val:42,color:'#2563eb'},
+    {label:'業務自動化',val:28,color:'#7c3aed'},
+    {label:'LP・コーポレートサイト',val:18,color:'#16a34a'},
+    {label:'モバイルアプリ',val:12,color:'#d97706'},
+  ];
+
+  const transactions = [
+    {date:'2025-06-25',client:'田中商事',desc:'Webシステム開発 Phase2',amount:'¥480,000',status:'入金済',sc:'var(--green)',sb:'var(--green-light)'},
+    {date:'2025-06-24',client:'山本電機',desc:'業務自動化ツール導入',amount:'¥320,000',status:'請求中',sc:'var(--primary)',sb:'var(--primary-light)'},
+    {date:'2025-06-22',client:'鈴木工業',desc:'コーポレートLP制作',amount:'¥150,000',status:'入金済',sc:'var(--green)',sb:'var(--green-light)'},
+    {date:'2025-06-20',client:'ABC商事',desc:'Discord Bot開発',amount:'¥200,000',status:'入金済',sc:'var(--green)',sb:'var(--green-light)'},
+    {date:'2025-06-18',client:'XYZ株式会社',desc:'株自動化ツール',amount:'¥280,000',status:'未払い',sc:'var(--red)',sb:'var(--red-light)'},
+    {date:'2025-06-15',client:'佐藤商店',desc:'WordPress構築',amount:'¥120,000',status:'入金済',sc:'var(--green)',sb:'var(--green-light)'},
+  ];
+
+  function setPeriod(el, p){
+    document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    renderCharts(p);
+  }
+
+  function renderCharts(p='month'){
+    const d = periods[p];
+    const W=700,H=140,pad=15;
+    const vals = d.sales;
+    const max=Math.max(...vals)*1.1, min=0;
+    const pts = vals.map((v,i)=>{
+      const x=(i/(vals.length-1))*(W-30)+15;
+      const y=H-pad-((v-min)/(max-min))*(H-pad*2);
+      return {x,y,v};
+    });
+    const pathD='M'+pts.map(p=>p.x+','+p.y).join('L');
+    document.getElementById('linePath').setAttribute('d',pathD);
+    document.getElementById('lineArea').setAttribute('d',`M15,${H-pad} L`+pts.map(p=>p.x+','+p.y).join('L')+`L${W-15},${H-pad}Z`);
+
+    // prev year (lighter)
+    const prev=vals.map(v=>v*0.85);
+    const pts2=prev.map((v,i)=>({x:(i/(prev.length-1))*(W-30)+15,y:H-pad-((v-min)/(max-min))*(H-pad*2)}));
+    document.getElementById('linePath2').setAttribute('d','M'+pts2.map(p=>p.x+','+p.y).join('L'));
+
+    const pg=document.getElementById('linePoints');
+    pg.innerHTML=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#2563eb" stroke="white" stroke-width="2"/>`).join('');
+
+    const labels=document.getElementById('monthLabels');
+    labels.innerHTML=d.labels.map(l=>`<span>${l}</span>`).join('');
+
+    // update KPIs
+    document.getElementById('kv1').textContent=d.kv1;
+    document.getElementById('kv2').textContent=d.kv2;
+    document.getElementById('kv3').textContent=d.kv3;
+    document.getElementById('kv4').textContent=d.kv4;
+  }
+
+  function renderBarH(){
+    const bh=document.getElementById('barHChart');
+    bh.innerHTML=categories.map(c=>`
+      <div class="bar-h-item">
+        <div class="bar-h-header"><span class="bar-h-label">${c.label}</span><span class="bar-h-val">${c.val}%</span></div>
+        <div class="bar-h-track"><div class="bar-h-fill" style="width:${c.val}%;background:${c.color}"></div></div>
+      </div>`).join('');
+  }
+
+  function renderTable(){
+    document.getElementById('txBody').innerHTML=transactions.map(t=>`
+      <tr>
+        <td style="color:var(--muted)">${t.date}</td>
+        <td style="font-weight:600">${t.client}</td>
+        <td style="color:var(--sub)">${t.desc}</td>
+        <td style="font-weight:700">${t.amount}</td>
+        <td><span class="badge" style="color:${t.sc};background:${t.sb}">${t.status}</span></td>
+      </tr>`).join('');
+  }
+
+  renderCharts('month');
+  renderBarH();
+  renderTable();
+</script>
+</body>
+</html>

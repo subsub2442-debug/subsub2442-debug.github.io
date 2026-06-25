@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>チーム管理 | AutoBiz</title>
+  <style>
+    :root{--primary:#2563eb;--primary-light:#eff6ff;--text:#0f172a;--sub:#475569;--muted:#94a3b8;--border:#e2e8f0;--bg:#f8fafc;--white:#fff;--green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--yellow:#d97706;--purple:#7c3aed;--purple-light:#f5f3ff;--shadow:0 1px 3px rgba(0,0,0,0.07);--shadow-md:0 4px 12px rgba(0,0,0,0.08);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+    .sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:var(--shadow);}
+    .sidebar-logo{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);}
+    .sidebar-logo .lt{font-size:1rem;font-weight:800;color:var(--primary);}
+    .sidebar-logo .ls{font-size:0.7rem;color:var(--muted);margin-top:0.1rem;}
+    .sidebar-nav{padding:0.8rem 0;flex:1;}
+    .ng{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0.5rem 1.5rem;margin-top:0.3rem;}
+    .nav-item{display:flex;align-items:center;gap:0.7rem;padding:0.55rem 1.5rem;color:var(--sub);font-size:0.85rem;border-left:3px solid transparent;text-decoration:none;transition:all 0.15s;}
+    .nav-item:hover{color:var(--primary);background:var(--primary-light);}
+    .nav-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+    .su{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+    .sa{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;}
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:10;box-shadow:var(--shadow);}
+    .topbar-title{font-size:0.95rem;font-weight:700;}
+    .content{padding:1.5rem;}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .stat{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:var(--shadow);text-align:center;}
+    .stat-num{font-size:1.6rem;font-weight:800;margin-bottom:0.2rem;}
+    .stat-label{font-size:0.75rem;color:var(--muted);}
+
+    /* MEMBER GRID */
+    .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:1.5rem;}
+    .member-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.3rem;box-shadow:var(--shadow);transition:box-shadow 0.2s,transform 0.2s;}
+    .member-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .member-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1rem;}
+    .member-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:white;flex-shrink:0;}
+    .member-name{font-size:0.95rem;font-weight:700;margin-bottom:0.15rem;}
+    .member-role{font-size:0.78rem;color:var(--muted);}
+    .member-status{display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;margin-top:0.3rem;}
+    .status-dot{width:6px;height:6px;border-radius:50%;}
+    .member-skills{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.8rem;}
+    .skill-tag{background:var(--bg);border:1px solid var(--border);color:var(--sub);font-size:0.72rem;padding:0.15rem 0.5rem;border-radius:4px;}
+    .member-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;background:var(--bg);border-radius:8px;padding:0.7rem;}
+    .mstat{text-align:center;}
+    .mstat-val{font-size:0.9rem;font-weight:700;}
+    .mstat-l{font-size:0.65rem;color:var(--muted);margin-top:0.1rem;}
+    .member-actions{display:flex;gap:0.5rem;margin-top:0.8rem;}
+    .m-btn{flex:1;padding:0.4rem;border-radius:6px;font-size:0.78rem;cursor:pointer;transition:all 0.15s;text-align:center;}
+    .m-btn-outline{border:1px solid var(--border);background:var(--white);color:var(--sub);}
+    .m-btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+    .m-btn-primary{border:none;background:var(--primary);color:white;}
+    .m-btn-primary:hover{background:#1d4ed8;}
+
+    /* ACTIVITY */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.2rem;box-shadow:var(--shadow);}
+    .card-title{font-size:0.88rem;font-weight:700;margin-bottom:1rem;}
+    .act-item{display:flex;align-items:flex-start;gap:0.7rem;padding:0.55rem 0;border-bottom:1px solid var(--border);}
+    .act-item:last-child{border-bottom:none;}
+    .act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+    .act-text{flex:1;font-size:0.82rem;color:var(--sub);}
+    .act-text strong{color:var(--text);}
+    .act-time{font-size:0.7rem;color:var(--muted);}
+
+    /* INVITE MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:16px;padding:1.8rem;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+    .modal-title{font-size:1rem;font-weight:700;margin-bottom:1.2rem;}
+    .mg{margin-bottom:1rem;}
+    .mg label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;}
+    .mg input,.mg select{width:100%;padding:0.6rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:inherit;outline:none;}
+    .mg input:focus,.mg select:focus{border-color:var(--primary);}
+    .modal-btns{display:flex;gap:0.8rem;justify-content:flex-end;margin-top:1rem;}
+    .modal-cancel{padding:0.6rem 1.2rem;border:1px solid var(--border);background:var(--white);border-radius:8px;font-size:0.85rem;cursor:pointer;}
+    .modal-send{padding:0.6rem 1.4rem;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;}
+
+    .back-link{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--primary);color:white;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.82rem;text-decoration:none;z-index:199;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.stats-row{grid-template-columns:repeat(2,1fr);}}.
+  </style>
+</head>
+<body>
+<a href="../" class="back-link">← ポートフォリオへ</a>
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="lt">AutoBiz</div><div class="ls">業務自動化プラットフォーム</div></div>
+  <nav class="sidebar-nav">
+    <div class="ng">メニュー</div>
+    <a class="nav-item" href="./index.html">📊 ダッシュボード</a>
+    <a class="nav-item" href="./tasks.html">📋 タスク管理</a>
+    <a class="nav-item" href="./reports.html">📄 レポート</a>
+    <a class="nav-item active" href="./team.html">👥 チーム</a>
+    <div class="ng">自動化</div>
+    <a class="nav-item" href="./workflow.html">⚡ ワークフロー</a>
+    <a class="nav-item" href="#">🔗 API連携</a>
+    <a class="nav-item" href="#">🤖 AI補助</a>
+  </nav>
+  <div class="su"><div class="sa">YS</div><div><div style="font-size:0.82rem;font-weight:600">Yuki Soejima</div><div style="font-size:0.7rem;color:var(--muted)">管理者</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">👥 チーム管理</div>
+    <button onclick="document.getElementById('inviteModal').classList.add('open')" style="padding:0.4rem 1rem;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer">＋ メンバー招待</button>
+  </div>
+  <div class="content">
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" style="color:var(--primary)">6</div><div class="stat-label">メンバー数</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--green)">5</div><div class="stat-label">オンライン</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--yellow)">24</div><div class="stat-label">進行中タスク</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--purple)">186h</div><div class="stat-label">今月削減工数</div></div>
+    </div>
+
+    <div class="member-grid" id="memberGrid"></div>
+
+    <div class="card">
+      <div class="card-title">チームアクティビティ</div>
+      <div id="activityFeed"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- INVITE MODAL -->
+<div class="modal-overlay" id="inviteModal" onclick="if(event.target.id==='inviteModal')this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">メンバーを招待</div>
+    <div class="mg"><label>メールアドレス *</label><input type="email" placeholder="teammate@company.com" id="invEmail"/></div>
+    <div class="mg"><label>役割</label>
+      <select id="invRole">
+        <option>メンバー</option><option>マネージャー</option><option>閲覧者</option>
+      </select>
+    </div>
+    <div class="mg"><label>部署</label><input placeholder="営業部・開発部など" id="invDept"/></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="document.getElementById('inviteModal').classList.remove('open')">キャンセル</button>
+      <button class="modal-send" onclick="sendInvite()">招待メールを送る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const members = [
+    {name:'Yuki Soejima',role:'管理者',dept:'エンジニアリング',color:'#2563eb',initials:'YS',online:true,tasks:8,done:24,hours:62,skills:['Python','Vue.js','自動化']},
+    {name:'田中 健一',role:'マネージャー',dept:'営業',color:'#7c3aed',initials:'TN',online:true,tasks:5,done:18,hours:45,skills:['営業','CRM','Excel']},
+    {name:'鈴木 美咲',role:'メンバー',dept:'マーケティング',color:'#16a34a',initials:'SM',online:true,tasks:6,done:15,hours:38,skills:['LP制作','SNS','デザイン']},
+    {name:'山本 拓也',role:'メンバー',dept:'エンジニアリング',color:'#d97706',initials:'YT',online:false,tasks:3,done:10,hours:30,skills:['WordPress','PHP','MySQL']},
+    {name:'佐藤 裕子',role:'メンバー',dept:'経理',color:'#dc2626',initials:'SY',online:true,tasks:4,done:20,hours:40,skills:['freee','経理','Excel']},
+    {name:'中村 大輔',role:'閲覧者',dept:'営業',color:'#0891b2',initials:'ND',online:true,tasks:2,done:8,hours:20,skills:['営業','顧客対応']},
+  ];
+
+  document.getElementById('memberGrid').innerHTML = members.map(m => `
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar" style="background:${m.color}">${m.initials}</div>
+        <div style="flex:1">
+          <div class="member-name">${m.name}</div>
+          <div class="member-role">${m.role} · ${m.dept}</div>
+          <div class="member-status">
+            <div class="status-dot" style="background:${m.online?'#16a34a':'#94a3b8'}"></div>
+            <span style="color:${m.online?'var(--green)':'var(--muted)'}">${m.online?'オンライン':'オフライン'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="member-skills">${m.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <div class="member-stats">
+        <div class="mstat"><div class="mstat-val" style="color:var(--primary)">${m.tasks}</div><div class="mstat-l">進行中</div></div>
+        <div class="mstat"><div class="mstat-val" style="color:var(--green)">${m.done}</div><div class="mstat-l">完了</div></div>
+        <div class="mstat"><div class="mstat-val" style="color:var(--purple)">${m.hours}h</div><div class="mstat-l">今月</div></div>
+      </div>
+      <div class="member-actions">
+        <button class="m-btn m-btn-outline" onclick="alert('${m.name}にメッセージ（デモ）')">💬 メッセージ</button>
+        <button class="m-btn m-btn-primary" onclick="alert('${m.name}のタスク確認（デモ）')">📋 タスク確認</button>
+      </div>
+    </div>`).join('');
+
+  const activities = [
+    {color:'#16a34a',text:'<strong>田中 健一</strong> がタスク「ABC商事フォローアップ」を完了しました',time:'10分前'},
+    {color:'#2563eb',text:'<strong>Yuki Soejima</strong> が新しいワークフロー「日次レポート配信」を作成しました',time:'32分前'},
+    {color:'#7c3aed',text:'<strong>鈴木 美咲</strong> がタスク「Webサイトコンテンツ更新」をレビュー待ちに変更しました',time:'1時間前'},
+    {color:'#d97706',text:'<strong>山本 拓也</strong> がログインしました',time:'2時間前'},
+    {color:'#16a34a',text:'<strong>佐藤 裕子</strong> が請求書 #1045 の入金確認を完了しました',time:'3時間前'},
+    {color:'#0891b2',text:'<strong>中村 大輔</strong> が月次レポートを閲覧しました',time:'4時間前'},
+  ];
+
+  document.getElementById('activityFeed').innerHTML = activities.map(a => `
+    <div class="act-item">
+      <div class="act-dot" style="background:${a.color}"></div>
+      <div class="act-text">${a.text}</div>
+      <div class="act-time">${a.time}</div>
+    </div>`).join('');
+
+  function sendInvite(){
+    const email = document.getElementById('invEmail').value;
+    if(!email){alert('メールアドレスを入力してください');return;}
+    alert(`${email} に招待メールを送信しました（デモ）`);
+    document.getElementById('inviteModal').classList.remove('open');
+    document.getElementById('invEmail').value='';
+  }
+</script>
+</body>
+</html>

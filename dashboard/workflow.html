@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ワークフロー | AutoBiz</title>
+  <style>
+    :root{--primary:#2563eb;--primary-light:#eff6ff;--text:#0f172a;--sub:#475569;--muted:#94a3b8;--border:#e2e8f0;--bg:#f8fafc;--white:#fff;--green:#16a34a;--green-light:#dcfce7;--yellow:#d97706;--yellow-light:#fef3c7;--purple:#7c3aed;--purple-light:#f5f3ff;--shadow:0 1px 3px rgba(0,0,0,0.07);--shadow-md:0 4px 12px rgba(0,0,0,0.08);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+    .sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:var(--shadow);}
+    .sidebar-logo{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);}
+    .sidebar-logo .lt{font-size:1rem;font-weight:800;color:var(--primary);}
+    .sidebar-logo .ls{font-size:0.7rem;color:var(--muted);margin-top:0.1rem;}
+    .sidebar-nav{padding:0.8rem 0;flex:1;}
+    .ng{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0.5rem 1.5rem;margin-top:0.3rem;}
+    .nav-item{display:flex;align-items:center;gap:0.7rem;padding:0.55rem 1.5rem;color:var(--sub);font-size:0.85rem;border-left:3px solid transparent;text-decoration:none;transition:all 0.15s;}
+    .nav-item:hover{color:var(--primary);background:var(--primary-light);}
+    .nav-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+    .su{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+    .sa{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;}
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:10;box-shadow:var(--shadow);}
+    .topbar-title{font-size:0.95rem;font-weight:700;}
+    .content{padding:1.5rem;}
+
+    /* LAYOUT */
+    .wf-layout{display:grid;grid-template-columns:260px 1fr;gap:1.2rem;}
+
+    /* PALETTE */
+    .palette{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:var(--shadow);height:fit-content;}
+    .palette-title{font-size:0.82rem;font-weight:700;margin-bottom:1rem;color:var(--sub);}
+    .palette-group{margin-bottom:1rem;}
+    .palette-group-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;}
+    .node-template{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.7rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.4rem;cursor:grab;font-size:0.82rem;background:var(--bg);transition:all 0.15s;user-select:none;}
+    .node-template:hover{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+    .node-template:active{cursor:grabbing;}
+    .node-icon{font-size:1rem;flex-shrink:0;}
+
+    /* CANVAS */
+    .canvas-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+    .canvas-toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:0.6rem 1rem;display:flex;align-items:center;gap:0.6rem;}
+    .ct-btn{padding:0.35rem 0.8rem;border:1px solid var(--border);background:var(--white);border-radius:6px;font-size:0.78rem;cursor:pointer;color:var(--sub);transition:all 0.15s;}
+    .ct-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .ct-btn.primary{background:var(--primary);color:white;border-color:var(--primary);}
+    .ct-btn.primary:hover{background:#1d4ed8;}
+    .canvas-status{font-size:0.75rem;color:var(--muted);margin-left:auto;}
+    .canvas{position:relative;height:480px;background:var(--white);background-image:radial-gradient(circle,#e2e8f0 1px,transparent 1px);background-size:24px 24px;overflow:hidden;}
+
+    /* NODES */
+    .wf-node{position:absolute;min-width:140px;background:var(--white);border:2px solid var(--border);border-radius:12px;padding:0.7rem 1rem;box-shadow:var(--shadow-md);cursor:move;user-select:none;transition:border-color 0.15s,box-shadow 0.15s;}
+    .wf-node:hover{border-color:var(--primary);box-shadow:0 4px 20px rgba(37,99,235,0.15);}
+    .wf-node.selected{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}
+    .node-header{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;}
+    .node-type-icon{font-size:1rem;}
+    .node-label{font-size:0.82rem;font-weight:700;}
+    .node-desc{font-size:0.72rem;color:var(--muted);}
+    .node-del{position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.8rem;opacity:0;transition:opacity 0.15s;padding:0.1rem 0.3rem;border-radius:4px;}
+    .wf-node:hover .node-del{opacity:1;}
+    .node-del:hover{background:var(--red-light,#fee2e2);color:var(--red,#dc2626);}
+
+    /* ARROWS (SVG overlay) */
+    .arrow-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+
+    /* WORKFLOW LIST */
+    .wf-list-section{margin-top:1.5rem;}
+    .wf-list-title{font-size:0.88rem;font-weight:700;margin-bottom:0.8rem;}
+    .wf-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
+    .wf-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.1rem;box-shadow:var(--shadow);transition:box-shadow 0.2s,transform 0.2s;}
+    .wf-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .wf-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.6rem;}
+    .wf-card-icon{font-size:1.3rem;}
+    .wf-status{font-size:0.7rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:4px;}
+    .wf-card-title{font-size:0.9rem;font-weight:700;margin-bottom:0.3rem;}
+    .wf-card-desc{font-size:0.8rem;color:var(--sub);line-height:1.5;margin-bottom:0.8rem;}
+    .wf-card-stats{display:flex;gap:1rem;font-size:0.75rem;color:var(--muted);}
+    .wf-edit-btn{margin-top:0.8rem;width:100%;padding:0.4rem;border:1px solid var(--border);background:var(--bg);border-radius:6px;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .wf-edit-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+    .back-link{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--primary);color:white;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.82rem;text-decoration:none;z-index:200;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.wf-layout{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<a href="../" class="back-link">← ポートフォリオへ</a>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="lt">AutoBiz</div><div class="ls">業務自動化プラットフォーム</div></div>
+  <nav class="sidebar-nav">
+    <div class="ng">メニュー</div>
+    <a class="nav-item" href="./index.html">📊 ダッシュボード</a>
+    <a class="nav-item" href="./tasks.html">📋 タスク管理</a>
+    <a class="nav-item" href="./reports.html">📄 レポート</a>
+    <a class="nav-item" href="./team.html">👥 チーム</a>
+    <div class="ng">自動化</div>
+    <a class="nav-item active" href="./workflow.html">⚡ ワークフロー</a>
+    <a class="nav-item" href="#">🔗 API連携</a>
+    <a class="nav-item" href="#">🤖 AI補助</a>
+  </nav>
+  <div class="su"><div class="sa">YS</div><div><div style="font-size:0.82rem;font-weight:600">Yuki Soejima</div><div style="font-size:0.7rem;color:var(--muted)">管理者</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">⚡ ワークフロー自動化</div>
+    <button style="padding:0.4rem 1rem;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer" onclick="openBuilder()">＋ 新規作成</button>
+  </div>
+  <div class="content">
+
+    <!-- BUILDER -->
+    <div id="builderSection">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div>
+          <div style="font-size:1rem;font-weight:700">ワークフロービルダー</div>
+          <div style="font-size:0.8rem;color:var(--muted)">ノードをドラッグして自動化フローを作成</div>
+        </div>
+        <button onclick="closeBuilder()" style="background:none;border:1px solid var(--border);padding:0.35rem 0.8rem;border-radius:6px;font-size:0.8rem;cursor:pointer;color:var(--sub)">× 閉じる</button>
+      </div>
+      <div class="wf-layout">
+        <div class="palette">
+          <div class="palette-title">ノードパレット</div>
+          <div class="palette-group">
+            <div class="palette-group-label">トリガー</div>
+            <div class="node-template" draggable="true" data-type="trigger" data-icon="🔔" data-label="スケジュール" data-desc="定期実行">🔔 スケジュール実行</div>
+            <div class="node-template" draggable="true" data-type="trigger" data-icon="📧" data-label="メール受信" data-desc="メールをトリガー">📧 メール受信</div>
+            <div class="node-template" draggable="true" data-type="trigger" data-icon="🌐" data-label="Webhook" data-desc="外部からトリガー">🌐 Webhook</div>
+          </div>
+          <div class="palette-group">
+            <div class="palette-group-label">アクション</div>
+            <div class="node-template" draggable="true" data-type="action" data-icon="📤" data-label="メール送信" data-desc="メールを送信">📤 メール送信</div>
+            <div class="node-template" draggable="true" data-type="action" data-icon="📊" data-label="データ取得" data-desc="DBから取得">📊 データ取得</div>
+            <div class="node-template" draggable="true" data-type="action" data-icon="📱" data-label="LINE通知" data-desc="LINEに送信">📱 LINE通知</div>
+            <div class="node-template" draggable="true" data-type="action" data-icon="📄" data-label="PDF生成" data-desc="レポートを生成">📄 PDF生成</div>
+          </div>
+          <div class="palette-group">
+            <div class="palette-group-label">条件分岐</div>
+            <div class="node-template" draggable="true" data-type="condition" data-icon="🔀" data-label="条件分岐" data-desc="IF/ELSE">🔀 条件分岐</div>
+            <div class="node-template" draggable="true" data-type="condition" data-icon="🔁" data-label="ループ" data-desc="繰り返し処理">🔁 ループ処理</div>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-toolbar">
+            <button class="ct-btn" onclick="clearCanvas()">🗑 クリア</button>
+            <button class="ct-btn" onclick="addSampleFlow()">✨ サンプル挿入</button>
+            <button class="ct-btn primary" onclick="runFlow()">▶ 実行テスト</button>
+            <span class="canvas-status" id="canvasStatus">ノードをドラッグして配置</span>
+          </div>
+          <div class="canvas" id="canvas">
+            <svg class="arrow-svg" id="arrowSvg"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXISTING WORKFLOWS -->
+    <div class="wf-list-section">
+      <div class="wf-list-title">稼働中のワークフロー</div>
+      <div class="wf-cards" id="wfCards"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let nodes = [];
+  let draggingNode = null;
+  let dragOffset = {x:0,y:0};
+  let selectedNode = null;
+  let nodeIdCounter = 1;
+  let dragTemplate = null;
+
+  const typeColors = {trigger:'#2563eb',action:'#16a34a',condition:'#d97706'};
+
+  const canvas = document.getElementById('canvas');
+  const arrowSvg = document.getElementById('arrowSvg');
+  const status = document.getElementById('canvasStatus');
+
+  // Drag from palette
+  document.querySelectorAll('.node-template').forEach(t => {
+    t.addEventListener('dragstart', e => {
+      dragTemplate = {
+        type: t.dataset.type,
+        icon: t.dataset.icon,
+        label: t.dataset.label,
+        desc: t.dataset.desc,
+      };
+    });
+  });
+
+  canvas.addEventListener('dragover', e => e.preventDefault());
+  canvas.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!dragTemplate) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left - 70;
+    const y = e.clientY - rect.top - 30;
+    addNode(dragTemplate, x, y);
+    dragTemplate = null;
+  });
+
+  function addNode(tmpl, x, y) {
+    const id = nodeIdCounter++;
+    const node = document.createElement('div');
+    node.className = 'wf-node';
+    node.id = 'node-' + id;
+    node.style.left = x + 'px';
+    node.style.top = y + 'px';
+    const color = typeColors[tmpl.type] || '#2563eb';
+    node.innerHTML = `
+      <button class="node-del" onclick="removeNode('node-${id}')">✕</button>
+      <div class="node-header">
+        <span class="node-type-icon">${tmpl.icon}</span>
+        <span class="node-label">${tmpl.label}</span>
+      </div>
+      <div class="node-desc">${tmpl.desc}</div>
+      <div style="width:8px;height:8px;border-radius:50%;background:${color};margin-top:0.5rem"></div>
+    `;
+    node.style.borderColor = color + '44';
+
+    // Drag to move
+    node.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('node-del')) return;
+      draggingNode = node;
+      const r = node.getBoundingClientRect();
+      dragOffset.x = e.clientX - r.left;
+      dragOffset.y = e.clientY - r.top;
+      node.classList.add('selected');
+      if (selectedNode && selectedNode !== node) selectedNode.classList.remove('selected');
+      selectedNode = node;
+      e.preventDefault();
+    });
+
+    canvas.appendChild(node);
+    nodes.push({id:'node-'+id, el:node, tmpl});
+    updateArrows();
+    updateStatus();
+  }
+
+  document.addEventListener('mousemove', e => {
+    if (!draggingNode) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left - dragOffset.x, rect.width - 160));
+    const y = Math.max(0, Math.min(e.clientY - rect.top - dragOffset.y, rect.height - 80));
+    draggingNode.style.left = x + 'px';
+    draggingNode.style.top = y + 'px';
+    updateArrows();
+  });
+  document.addEventListener('mouseup', () => { draggingNode = null; });
+
+  function removeNode(id) {
+    const idx = nodes.findIndex(n=>n.id===id);
+    if (idx > -1) { nodes[idx].el.remove(); nodes.splice(idx,1); }
+    updateArrows();
+    updateStatus();
+  }
+
+  function updateArrows() {
+    let arrows = '';
+    for (let i = 0; i < nodes.length - 1; i++) {
+      const a = nodes[i].el, b = nodes[i+1].el;
+      const ax = parseInt(a.style.left) + a.offsetWidth/2;
+      const ay = parseInt(a.style.top) + a.offsetHeight;
+      const bx = parseInt(b.style.left) + b.offsetWidth/2;
+      const by = parseInt(b.style.top);
+      const mx = (ax+bx)/2, my = (ay+by)/2;
+      arrows += `<path d="M${ax},${ay} C${ax},${my} ${bx},${my} ${bx},${by}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>`;
+    }
+    arrowSvg.innerHTML = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs>` + arrows;
+  }
+
+  function updateStatus() {
+    status.textContent = nodes.length === 0 ? 'ノードをドラッグして配置' : `${nodes.length}ノード配置中`;
+  }
+
+  function clearCanvas() {
+    nodes.forEach(n => n.el.remove());
+    nodes = [];
+    updateArrows();
+    updateStatus();
+  }
+
+  function addSampleFlow() {
+    clearCanvas();
+    const flow = [
+      {type:'trigger',icon:'🔔',label:'スケジュール',desc:'毎朝9時',x:80,y:30},
+      {type:'action',icon:'📊',label:'データ取得',desc:'売上DBから取得',x:80,y:130},
+      {type:'condition',icon:'🔀',label:'条件分岐',desc:'売上 > 目標？',x:80,y:230},
+      {type:'action',icon:'📱',label:'LINE通知',desc:'達成通知を送信',x:80,y:330},
+      {type:'action',icon:'📄',label:'PDF生成',desc:'日次レポート作成',x:80,y:430},
+    ];
+    flow.forEach(f => addNode(f, f.x, f.y));
+  }
+
+  function runFlow() {
+    const btn = event.target;
+    btn.textContent = '⏳ 実行中...';
+    btn.disabled = true;
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < nodes.length) {
+        nodes[i].el.style.boxShadow = '0 0 0 3px rgba(34,197,94,0.5)';
+        nodes[i].el.style.borderColor = '#16a34a';
+        i++;
+      } else {
+        clearInterval(interval);
+        btn.textContent = '✅ 完了';
+        status.textContent = 'フローの実行テストが完了しました';
+        setTimeout(() => {
+          btn.textContent = '▶ 実行テスト';
+          btn.disabled = false;
+          nodes.forEach(n => { n.el.style.boxShadow = ''; n.el.style.borderColor = ''; });
+        }, 2000);
+      }
+    }, 600);
+  }
+
+  function openBuilder() {
+    document.getElementById('builderSection').style.display = 'block';
+  }
+  function closeBuilder() {
+    document.getElementById('builderSection').style.display = 'none';
+  }
+
+  // Existing workflows
+  const workflows = [
+    {icon:'📧',title:'請求書自動送付フロー',desc:'月末に請求書を自動生成してメール送信。入金確認後にステータスを自動更新。',status:'稼働中',sc:'var(--green)',sb:'var(--green-light)',runs:'毎月末',count:'3ノード'},
+    {icon:'📦',title:'在庫アラートフロー',desc:'在庫が発注点を下回った際に担当者へLINE通知と自動発注メールを送信。',status:'稼働中',sc:'var(--green)',sb:'var(--green-light)',runs:'毎時',count:'4ノード'},
+    {icon:'📊',title:'日次レポート配信',desc:'毎朝9時に前日の売上・KPIをSlackとLINEに自動配信。',status:'稼働中',sc:'var(--green)',sb:'var(--green-light)',runs:'毎朝9:00',count:'5ノード'},
+    {icon:'💬',title:'顧客問い合わせ自動対応',desc:'お問い合わせフォームへの送信をトリガーに自動返信メールを送付。',status:'テスト中',sc:'var(--yellow)',sb:'var(--yellow-light)',runs:'Webhook',count:'3ノード'},
+  ];
+
+  document.getElementById('wfCards').innerHTML = workflows.map(w => `
+    <div class="wf-card">
+      <div class="wf-card-header">
+        <span class="wf-card-icon">${w.icon}</span>
+        <span class="wf-status" style="color:${w.sc};background:${w.sb}">${w.status}</span>
+      </div>
+      <div class="wf-card-title">${w.title}</div>
+      <div class="wf-card-desc">${w.desc}</div>
+      <div class="wf-card-stats">
+        <span>🔁 ${w.runs}</span>
+        <span>⬡ ${w.count}</span>
+      </div>
+      <button class="wf-edit-btn" onclick="openBuilder()">✏ 編集する</button>
+    </div>`).join('');
+
+  // Start with builder hidden
+  document.getElementById('builderSection').style.display = 'none';
+</script>
+</body>
+</html>

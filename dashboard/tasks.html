@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タスク管理 | AutoBiz</title>
+  <style>
+    :root {
+      --primary:#2563eb;--primary-light:#eff6ff;
+      --text:#0f172a;--sub:#475569;--muted:#94a3b8;
+      --border:#e2e8f0;--bg:#f8fafc;--white:#fff;
+      --green:#16a34a;--green-light:#dcfce7;
+      --red:#dc2626;--red-light:#fee2e2;
+      --yellow:#d97706;--yellow-light:#fef3c7;
+      --purple:#7c3aed;--purple-light:#f5f3ff;
+      --shadow:0 1px 3px rgba(0,0,0,0.07);
+      --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+
+    /* SIDEBAR */
+    .sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:var(--shadow);}
+    .sidebar-logo{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);}
+    .sidebar-logo .lt{font-size:1rem;font-weight:800;color:var(--primary);}
+    .sidebar-logo .ls{font-size:0.7rem;color:var(--muted);margin-top:0.1rem;}
+    .sidebar-nav{padding:0.8rem 0;flex:1;}
+    .ng{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0.5rem 1.5rem;margin-top:0.3rem;}
+    .nav-item{display:flex;align-items:center;gap:0.7rem;padding:0.55rem 1.5rem;color:var(--sub);cursor:pointer;font-size:0.85rem;border-left:3px solid transparent;text-decoration:none;transition:all 0.15s;}
+    .nav-item:hover{color:var(--primary);background:var(--primary-light);}
+    .nav-item.active{color:var(--primary);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+    .su{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+    .sa{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;}
+
+    /* MAIN */
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:10;box-shadow:var(--shadow);}
+    .topbar-title{font-size:0.95rem;font-weight:700;}
+    .content{padding:1.5rem;}
+
+    /* TOOLBAR */
+    .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:0.8rem;}
+    .toolbar-left{display:flex;align-items:center;gap:0.6rem;}
+    .view-btn{padding:0.4rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--white);font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--sub);transition:all 0.15s;}
+    .view-btn.active{background:var(--primary);color:white;border-color:var(--primary);}
+    .filter-select{padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;font-size:0.82rem;color:var(--sub);background:var(--white);outline:none;cursor:pointer;}
+    .add-task-btn{padding:0.45rem 1.1rem;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:background 0.2s;}
+    .add-task-btn:hover{background:#1d4ed8;}
+
+    /* KANBAN */
+    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    .kanban-col{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+    .col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;}
+    .col-title{font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:0.4rem;}
+    .col-count{background:var(--border);color:var(--sub);font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:999px;}
+    .col-add{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0.1rem 0.3rem;border-radius:4px;transition:all 0.15s;}
+    .col-add:hover{background:var(--border);color:var(--primary);}
+    .task-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:0.85rem;margin-bottom:0.6rem;cursor:grab;transition:box-shadow 0.2s,transform 0.1s;user-select:none;}
+    .task-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .task-card:active{cursor:grabbing;transform:scale(0.98);}
+    .task-card-title{font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;line-height:1.4;}
+    .task-card-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.3rem;}
+    .priority-tag{font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:4px;}
+    .task-assign{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;}
+    .task-due{font-size:0.68rem;color:var(--muted);display:flex;align-items:center;gap:0.2rem;}
+    .task-due.overdue{color:var(--red);}
+
+    /* LIST VIEW */
+    .list-view{display:none;}
+    .list-view.active{display:block;}
+    .kanban-view.hidden{display:none;}
+    .list-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+    .list-table th{padding:0.7rem 1rem;text-align:left;font-size:0.75rem;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--bg);}
+    .list-table td{padding:0.7rem 1rem;border-bottom:1px solid var(--border);font-size:0.85rem;}
+    .list-table tr:last-child td{border-bottom:none;}
+    .list-table tr:hover td{background:var(--bg);}
+    .status-badge{font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:6px;}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:16px;padding:1.8rem;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+    .modal-title{font-size:1rem;font-weight:700;margin-bottom:1.2rem;}
+    .modal-group{margin-bottom:1rem;}
+    .modal-group label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;}
+    .modal-group input,.modal-group select,.modal-group textarea{width:100%;padding:0.6rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:inherit;outline:none;transition:border-color 0.2s;}
+    .modal-group input:focus,.modal-group select:focus,.modal-group textarea:focus{border-color:var(--primary);}
+    .modal-group textarea{resize:vertical;min-height:80px;}
+    .modal-row{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;}
+    .modal-btns{display:flex;gap:0.8rem;justify-content:flex-end;margin-top:1.2rem;}
+    .modal-cancel{padding:0.6rem 1.2rem;border:1px solid var(--border);background:var(--white);border-radius:8px;font-size:0.88rem;cursor:pointer;}
+    .modal-save{padding:0.6rem 1.4rem;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.88rem;font-weight:700;cursor:pointer;}
+
+    .back-link{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--primary);color:white;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.82rem;text-decoration:none;z-index:199;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.kanban{grid-template-columns:1fr 1fr;}}
+    @media(max-width:600px){.kanban{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<a href="../" class="back-link">← ポートフォリオへ</a>
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="lt">AutoBiz</div><div class="ls">業務自動化プラットフォーム</div></div>
+  <nav class="sidebar-nav">
+    <div class="ng">メニュー</div>
+    <a class="nav-item" href="./index.html">📊 ダッシュボード</a>
+    <a class="nav-item active" href="./tasks.html">📋 タスク管理</a>
+    <a class="nav-item" href="./reports.html">📄 レポート</a>
+    <a class="nav-item" href="./team.html">👥 チーム</a>
+    <div class="ng">自動化</div>
+    <a class="nav-item" href="./workflow.html">⚡ ワークフロー</a>
+    <a class="nav-item" href="#">🔗 API連携</a>
+    <a class="nav-item" href="#">🤖 AI補助</a>
+  </nav>
+  <div class="su"><div class="sa">YS</div><div><div style="font-size:0.82rem;font-weight:600">Yuki Soejima</div><div style="font-size:0.7rem;color:var(--muted)">管理者</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📋 タスク管理</div>
+    <div style="display:flex;align-items:center;gap:0.8rem">
+      <div style="font-size:0.78rem;color:var(--muted)" id="taskStats"></div>
+    </div>
+  </div>
+  <div class="content">
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="view-btn active" id="btnKanban" onclick="setView('kanban')">🗂 カンバン</button>
+        <button class="view-btn" id="btnList" onclick="setView('list')">☰ リスト</button>
+        <select class="filter-select" id="filterPriority" onchange="renderAll()">
+          <option value="">すべての優先度</option>
+          <option value="high">🔴 高</option>
+          <option value="medium">🟡 中</option>
+          <option value="low">🟢 低</option>
+        </select>
+        <select class="filter-select" id="filterAssign" onchange="renderAll()">
+          <option value="">全担当者</option>
+          <option value="YS">Yuki</option>
+          <option value="TN">田中</option>
+          <option value="SM">鈴木</option>
+        </select>
+      </div>
+      <button class="add-task-btn" onclick="openModal()">＋ タスク追加</button>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="kanban-view" id="kanbanView">
+      <div class="kanban">
+        <div class="kanban-col"><div class="col-header"><span class="col-title">📥 未着手 <span class="col-count" id="c-todo"></span></span><button class="col-add" onclick="openModal('todo')">＋</button></div><div id="col-todo"></div></div>
+        <div class="kanban-col"><div class="col-header"><span class="col-title">⚡ 進行中 <span class="col-count" id="c-doing"></span></span><button class="col-add" onclick="openModal('doing')">＋</button></div><div id="col-doing"></div></div>
+        <div class="kanban-col"><div class="col-header"><span class="col-title">👀 レビュー <span class="col-count" id="c-review"></span></span><button class="col-add" onclick="openModal('review')">＋</button></div><div id="col-review"></div></div>
+        <div class="kanban-col"><div class="col-header"><span class="col-title">✅ 完了 <span class="col-count" id="c-done"></span></span><button class="col-add" onclick="openModal('done')">＋</button></div><div id="col-done"></div></div>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="list-view" id="listView">
+      <table class="list-table">
+        <thead><tr><th>タスク名</th><th>ステータス</th><th>優先度</th><th>担当</th><th>期限</th><th>操作</th></tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">タスクを追加</div>
+    <div class="modal-group"><label>タスク名 *</label><input id="m-title" placeholder="タスクのタイトルを入力..." /></div>
+    <div class="modal-group"><label>詳細メモ</label><textarea id="m-desc" placeholder="詳細・メモ..."></textarea></div>
+    <div class="modal-row">
+      <div class="modal-group"><label>ステータス</label>
+        <select id="m-status">
+          <option value="todo">未着手</option><option value="doing">進行中</option>
+          <option value="review">レビュー</option><option value="done">完了</option>
+        </select>
+      </div>
+      <div class="modal-group"><label>優先度</label>
+        <select id="m-priority">
+          <option value="high">🔴 高</option><option value="medium" selected>🟡 中</option><option value="low">🟢 低</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-group"><label>担当者</label>
+        <select id="m-assign"><option value="YS">Yuki</option><option value="TN">田中</option><option value="SM">鈴木</option></select>
+      </div>
+      <div class="modal-group"><label>期限</label><input type="date" id="m-due" /></div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-save" onclick="saveTask()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE = 'autobiz_tasks_v2';
+  const priorityConf = {
+    high:{label:'高',color:'var(--red)',bg:'var(--red-light)'},
+    medium:{label:'中',color:'var(--yellow)',bg:'var(--yellow-light)'},
+    low:{label:'低',color:'var(--green)',bg:'var(--green-light)'}
+  };
+  const statusConf = {
+    todo:{label:'未着手',color:'var(--sub)',bg:'var(--bg)'},
+    doing:{label:'進行中',color:'var(--primary)',bg:'var(--primary-light)'},
+    review:{label:'レビュー',color:'var(--purple)',bg:'var(--purple-light)'},
+    done:{label:'完了',color:'var(--green)',bg:'var(--green-light)'}
+  };
+  const assignConf = {YS:'#2563eb',TN:'#7c3aed',SM:'#16a34a'};
+  const assignName = {YS:'Yuki',TN:'田中',SM:'鈴木'};
+
+  const defaultTasks = [
+    {id:1,title:'月次レポートの確認',desc:'6月分の売上・経費レポートをチェック',status:'done',priority:'high',assign:'YS',due:'2025-06-25'},
+    {id:2,title:'請求書 #1044 の送付',desc:'山田商事への請求書PDF送付',status:'done',priority:'high',assign:'YS',due:'2025-06-25'},
+    {id:3,title:'ABC商事へのフォローアップ',desc:'先週の提案書に対する返答確認',status:'doing',priority:'high',assign:'TN',due:'2025-06-27'},
+    {id:4,title:'在庫発注（商品A / 50個）',desc:'発注点を下回ったため緊急発注',status:'todo',priority:'high',assign:'SM',due:'2025-06-26'},
+    {id:5,title:'Webサイトのコンテンツ更新',desc:'トップページのキャッチコピー修正',status:'review',priority:'medium',assign:'YS',due:'2025-06-28'},
+    {id:6,title:'API連携テスト',desc:'freeeとの連携テスト実施',status:'doing',priority:'medium',assign:'YS',due:'2025-06-30'},
+    {id:7,title:'チームMTG議事録の作成',desc:'6/24のMTG議事録をNotionに記録',status:'review',priority:'low',assign:'TN',due:'2025-06-27'},
+    {id:8,title:'新機能のユーザーテスト',desc:'ベータ版機能のUXフィードバック収集',status:'todo',priority:'medium',assign:'SM',due:'2025-07-01'},
+  ];
+
+  function loadTasks(){try{return JSON.parse(localStorage.getItem(STORAGE))||defaultTasks;}catch{return defaultTasks;}}
+  function saveTasks(t){localStorage.setItem(STORAGE,JSON.stringify(t));}
+
+  let currentView = 'kanban';
+  let defaultStatus = 'todo';
+
+  function setView(v){
+    currentView = v;
+    document.getElementById('btnKanban').className = 'view-btn' + (v==='kanban'?' active':'');
+    document.getElementById('btnList').className = 'view-btn' + (v==='list'?' active':'');
+    document.getElementById('kanbanView').className = 'kanban-view' + (v==='list'?' hidden':'');
+    document.getElementById('listView').className = 'list-view' + (v==='list'?' active':'');
+    renderAll();
+  }
+
+  function getFiltered(){
+    const fp = document.getElementById('filterPriority').value;
+    const fa = document.getElementById('filterAssign').value;
+    return loadTasks().filter(t => (!fp||t.priority===fp) && (!fa||t.assign===fa));
+  }
+
+  function renderAll(){
+    const tasks = getFiltered();
+    const statuses = ['todo','doing','review','done'];
+    statuses.forEach(s => {
+      const col = document.getElementById('col-'+s);
+      const cnt = document.getElementById('c-'+s);
+      if(!col) return;
+      const filtered = tasks.filter(t=>t.status===s);
+      cnt.textContent = filtered.length;
+      col.innerHTML = filtered.map(t => {
+        const p = priorityConf[t.priority];
+        const due = t.due ? new Date(t.due) : null;
+        const isOverdue = due && due < new Date() && t.status !== 'done';
+        return `<div class="task-card">
+          <div class="task-card-title">${t.title}</div>
+          <div class="task-card-meta">
+            <span class="priority-tag" style="color:${p.color};background:${p.bg}">${p.label}</span>
+            <div style="display:flex;align-items:center;gap:0.4rem">
+              <div class="task-assign" style="background:${assignConf[t.assign]}" title="${assignName[t.assign]}">${t.assign}</div>
+              ${t.due?`<span class="task-due${isOverdue?' overdue':''}">📅 ${t.due.slice(5)}</span>`:''}
+              <button onclick="deleteTask(${t.id})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.8rem;padding:0.1rem 0.2rem" title="削除">✕</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    });
+
+    // List view
+    const lb = document.getElementById('listBody');
+    if(lb){
+      lb.innerHTML = tasks.map(t => {
+        const p = priorityConf[t.priority];
+        const s = statusConf[t.status];
+        return `<tr>
+          <td style="font-weight:600">${t.title}<br><span style="font-size:0.75rem;color:var(--muted);font-weight:400">${t.desc||''}</span></td>
+          <td><span class="status-badge" style="color:${s.color};background:${s.bg}">${s.label}</span></td>
+          <td><span class="priority-tag" style="color:${p.color};background:${p.bg}">${p.label}</span></td>
+          <td><div style="display:flex;align-items:center;gap:0.4rem"><div class="task-assign" style="background:${assignConf[t.assign]};width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white">${t.assign}</div>${assignName[t.assign]}</div></td>
+          <td style="color:var(--sub)">${t.due||'—'}</td>
+          <td><button onclick="deleteTask(${t.id})" style="background:none;border:1px solid var(--border);border-radius:6px;padding:0.2rem 0.6rem;cursor:pointer;font-size:0.78rem;color:var(--red)">削除</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    const all = loadTasks();
+    document.getElementById('taskStats').textContent = `全${all.length}件 / 完了${all.filter(t=>t.status==='done').length}件`;
+  }
+
+  function openModal(status='todo'){
+    defaultStatus = status;
+    document.getElementById('m-status').value = status;
+    document.getElementById('m-title').value='';
+    document.getElementById('m-desc').value='';
+    document.getElementById('m-due').value='';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+  function closeModalOutside(e){if(e.target.id==='modalOverlay')closeModal();}
+
+  function saveTask(){
+    const title = document.getElementById('m-title').value.trim();
+    if(!title)return;
+    const tasks = loadTasks();
+    tasks.push({
+      id:Date.now(),
+      title,
+      desc:document.getElementById('m-desc').value.trim(),
+      status:document.getElementById('m-status').value,
+      priority:document.getElementById('m-priority').value,
+      assign:document.getElementById('m-assign').value,
+      due:document.getElementById('m-due').value,
+    });
+    saveTasks(tasks);
+    closeModal();
+    renderAll();
+  }
+
+  function deleteTask(id){
+    saveTasks(loadTasks().filter(t=>t.id!==id));
+    renderAll();
+  }
+
+  renderAll();
+</script>
+</body>
+</html>
