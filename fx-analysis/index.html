@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FXテクニカル分析 | Gold・ドル円・ポンド円</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --text: #0f172a;
+      --sub: #475569;
+      --muted: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --yellow: #d97706;
+      --gold: #d97706;
+      --gold-light: #fef3c7;
+      --shadow: 0 1px 3px rgba(0,0,0,0.07);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', 'Hiragino Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* TICKER */
+    .ticker-bar { background: #0f172a; padding: 0.35rem 0; overflow: hidden; white-space: nowrap; }
+    .ticker-inner { display: inline-flex; gap: 2.5rem; animation: ticker 35s linear infinite; }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .ticker-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
+    .ticker-pair { color: #94a3b8; font-weight: 700; font-family: monospace; }
+    .ticker-price { color: white; font-weight: 700; font-family: monospace; }
+    .up { color: #4ade80; }
+    .down { color: #f87171; }
+
+    /* NAV */
+    nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+    }
+    .nav-logo { font-weight: 800; font-size: 1rem; color: var(--gold); display: flex; align-items: center; gap: 0.5rem; }
+    .nav-badge { background: var(--gold-light); border: 1px solid #fde68a; color: var(--gold); font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+    .session-info { display: flex; gap: 0.6rem; font-size: 0.72rem; }
+    .session-tag { padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; }
+    .session-active { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+    .session-inactive { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+    .live-clock { font-size: 0.78rem; color: var(--muted); font-family: monospace; }
+
+    /* HERO */
+    .hero {
+      padding: 3rem 2rem 2rem; text-align: center;
+      background: linear-gradient(160deg, #fffbeb 0%, #ffffff 50%, #eff6ff 100%);
+    }
+    .hero-tag { display: inline-block; background: var(--gold-light); border: 1px solid #fde68a; color: var(--gold); font-size: 0.78rem; font-weight: 700; padding: 0.25rem 0.9rem; border-radius: 6px; margin-bottom: 1.2rem; font-family: monospace; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; margin-bottom: 0.7rem; line-height: 1.25; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: var(--sub); max-width: 560px; margin: 0 auto 1rem; font-size: 0.92rem; line-height: 1.7; }
+    .hero-disclaimer { display: inline-block; background: #fee2e2; border: 1px solid #fca5a5; color: var(--red); font-size: 0.73rem; padding: 0.3rem 0.9rem; border-radius: 6px; }
+
+    /* PAIR TABS */
+    .pair-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); background: var(--white); position: sticky; top: 56px; z-index: 90; box-shadow: var(--shadow); }
+    .pair-tab {
+      padding: 0.85rem 2rem; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; border-bottom: 3px solid transparent;
+      color: var(--muted); transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: -2px;
+    }
+    .pair-tab.active { color: var(--text); border-bottom-color: var(--gold); background: var(--gold-light); }
+    .pair-tab:hover:not(.active) { color: var(--sub); background: var(--bg); }
+    .pair-price-inline { font-size: 0.8rem; font-family: monospace; font-weight: 700; }
+
+    /* CONTENT */
+    .content { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem; }
+    .section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; margin-bottom: 0.8rem; }
+
+    /* PRICE HEADER */
+    .price-header {
+      background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.2rem 1.5rem; margin-bottom: 1.2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+    .price-main { display: flex; align-items: baseline; gap: 0.6rem; }
+    .price-pair-name { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+    .price-val { font-size: 2.2rem; font-weight: 900; font-family: monospace; }
+    .price-change { font-size: 0.9rem; font-weight: 700; }
+    .price-ohlc { text-align: right; font-size: 0.78rem; color: var(--muted); line-height: 2; font-family: monospace; }
+    .live-dot-wrap { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--green); font-weight: 700; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: blink 1.2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* CHART */
+    .chart-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+    .chart-label { font-size: 0.72rem; font-weight: 700; color: var(--sub); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between; }
+    .ma-legend { display: flex; gap: 1rem; font-size: 0.72rem; }
+    .ma-item { display: flex; align-items: center; gap: 0.3rem; }
+    .ma-line { width: 16px; height: 2px; border-radius: 1px; }
+    .svg-area { position: relative; width: 100%; cursor: crosshair; }
+    .svg-area svg { width: 100%; overflow: visible; }
+    .tooltip {
+      position: absolute; pointer-events: none;
+      background: var(--text); color: white;
+      font-size: 0.74rem; padding: 0.4rem 0.7rem; border-radius: 6px;
+      white-space: nowrap; display: none; z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-family: monospace;
+    }
+
+    /* SUB CHARTS */
+    .sub-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem; }
+    .sub-chart { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+    .sub-chart-title { font-size: 0.78rem; font-weight: 700; color: var(--sub); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .indicator-val { font-family: monospace; font-size: 0.78rem; font-weight: 700; }
+
+    /* ANALYSIS POSTS */
+    .analysis-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1.5rem; }
+    .analysis-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.2rem 1.4rem; box-shadow: var(--shadow);
+    }
+    .analysis-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.7rem; }
+    .analysis-meta { display: flex; align-items: center; gap: 0.6rem; }
+    .analysis-time { font-size: 0.72rem; color: var(--muted); font-family: monospace; }
+    .analysis-pair-tag { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+    .tag-gold { background: var(--gold-light); color: var(--gold); border: 1px solid #fde68a; }
+    .tag-usdjpy { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; }
+    .tag-gbpjpy { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+    .direction-tag { font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.6rem; border-radius: 4px; }
+    .bull { background: var(--green-light); color: var(--green); }
+    .bear { background: var(--red-light); color: var(--red); }
+    .neutral { background: var(--bg); color: var(--muted); }
+    .analysis-body { font-size: 0.88rem; color: var(--sub); line-height: 1.75; }
+    .analysis-body strong { color: var(--text); }
+    .analysis-price-mark { font-family: monospace; font-weight: 700; color: var(--text); background: var(--bg); padding: 0.05rem 0.3rem; border-radius: 3px; border: 1px solid var(--border); }
+    .sr-line { display: inline-block; padding: 0.05rem 0.3rem; border-radius: 3px; font-family: monospace; font-weight: 700; font-size: 0.82rem; }
+    .support { background: #dcfce7; color: var(--green); }
+    .resist { background: var(--red-light); color: var(--red); }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.8rem; margin-bottom: 1.2rem; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; box-shadow: var(--shadow); }
+    .stat-label { font-size: 0.7rem; color: var(--muted); font-weight: 500; margin-bottom: 0.3rem; }
+    .stat-val { font-size: 1.3rem; font-weight: 800; }
+
+    /* CTA */
+    .cta-box { background: linear-gradient(135deg, var(--gold-light), var(--primary-light)); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+    .cta-box h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.6rem; }
+    .cta-box p { color: var(--sub); margin-bottom: 1.2rem; font-size: 0.88rem; }
+    .cta-btn { display: inline-block; background: var(--gold); color: white; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+    .cta-btn:hover { background: #b45309; transform: translateY(-1px); }
+
+    /* BACK */
+    .back-link { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--primary); color: white; padding: 0.6rem 1.2rem; border-radius: 999px; font-size: 0.82rem; text-decoration: none; z-index: 200; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+
+    .pair-panel { display: none; }
+    .pair-panel.active { display: block; }
+
+    @media (max-width: 700px) {
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .sub-charts { grid-template-columns: 1fr; }
+      .pair-tab { padding: 0.7rem 1rem; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="../" class="back-link">← ポートフォリオへ</a>
+
+<div class="ticker-bar"><div class="ticker-inner" id="tickerInner"></div></div>
+
+<nav>
+  <div class="nav-logo">✦ FX Analyst <span class="nav-badge">DEMO</span></div>
+  <div class="session-info" id="sessionInfo"></div>
+  <div class="live-clock" id="clock"></div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">📊 Gold / USD/JPY / GBP/JPY — テクニカル分析</div>
+  <h1><span>FXテクニカル分析</span>を<br>毎日3回発信</h1>
+  <p>ゴールド（XAUUSD）・ドル円・ポンド円を中心に、MA・MACD・RSI・サポレジラインを用いたテクニカル分析を発信。LINEオープンチャット向けデモです。</p>
+  <div class="hero-disclaimer">⚠ このページはポートフォリオデモです。実際の投資アドバイスではありません。</div>
+</div>
+
+<!-- PAIR TABS -->
+<div class="pair-tabs">
+  <div class="pair-tab active" data-pair="gold" onclick="switchPair('gold')">
+    🥇 Gold <span class="pair-price-inline up" id="tab-gold-price">2,334.50</span>
+  </div>
+  <div class="pair-tab" data-pair="usdjpy" onclick="switchPair('usdjpy')">
+    💴 USD/JPY <span class="pair-price-inline up" id="tab-usdjpy-price">157.432</span>
+  </div>
+  <div class="pair-tab" data-pair="gbpjpy" onclick="switchPair('gbpjpy')">
+    💷 GBP/JPY <span class="pair-price-inline up" id="tab-gbpjpy-price">199.875</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ========= GOLD PANEL ========= -->
+  <div id="panel-gold" class="pair-panel active">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">本日の方向性</div>
+        <div class="stat-val" style="color:var(--green)">上目線</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">RSI (14)</div>
+        <div class="stat-val" id="gold-rsi-stat" style="color:var(--primary)">52.4</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要サポート</div>
+        <div class="stat-val" style="color:var(--green);font-size:1.1rem">$2,310</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要レジスタンス</div>
+        <div class="stat-val" style="color:var(--red);font-size:1.1rem">$2,360</div>
+      </div>
+    </div>
+
+    <div class="price-header">
+      <div>
+        <div class="price-pair-name">ゴールド（XAUUSD）</div>
+        <div class="price-main">
+          <div class="price-val up" id="gold-price">$2,334.50</div>
+          <div class="price-change up" id="gold-change">▲ +12.30 (+0.53%)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:2rem">
+        <div class="live-dot-wrap"><div class="live-dot"></div>LIVE</div>
+        <div class="price-ohlc" id="gold-ohlc">始値：$2,322.20<br>高値：$2,341.80<br>安値：$2,318.40<br>スプレッド：0.35</div>
+      </div>
+    </div>
+
+    <div class="section-label">// ゴールド チャート（1H）</div>
+    <div class="chart-wrap">
+      <div class="chart-label">
+        <span>ローソク足 1時間足</span>
+        <div class="ma-legend">
+          <div class="ma-item"><div class="ma-line" style="background:#2563eb"></div><span>MA20</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#d97706"></div><span>MA50</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#7c3aed"></div><span>MA200</span></div>
+        </div>
+      </div>
+      <div class="svg-area" id="goldChartWrap" style="height:200px">
+        <svg id="goldChart" viewBox="0 0 800 180" preserveAspectRatio="none" style="height:200px">
+          <defs>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d97706" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- grid -->
+          <line x1="0" y1="36" x2="800" y2="36" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="72" x2="800" y2="72" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="108" x2="800" y2="108" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="144" x2="800" y2="144" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- support/resist -->
+          <line id="gold-support" x1="0" y1="0" x2="800" y2="0" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <line id="gold-resist"  x1="0" y1="0" x2="800" y2="0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <path id="gold-area" fill="url(#goldGrad)"/>
+          <path id="gold-line" fill="none" stroke="#d97706" stroke-width="2.2"/>
+          <path id="gold-ma20" fill="none" stroke="#2563eb" stroke-width="1.5" opacity="0.8"/>
+          <path id="gold-ma50" fill="none" stroke="#d97706" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,2"/>
+          <g id="gold-signals"></g>
+          <line id="gold-cursor" x1="0" y1="0" x2="0" y2="180" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" display="none"/>
+          <circle id="gold-cdot" cx="0" cy="0" r="4" fill="#d97706" stroke="white" stroke-width="2" display="none"/>
+        </svg>
+        <div class="tooltip" id="gold-tooltip"></div>
+      </div>
+    </div>
+
+    <div class="sub-charts">
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>MACD (12,26,9)</span>
+          <span class="indicator-val" id="gold-macd-val" style="color:var(--green)">+2.14</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="goldMacd" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="35" x2="800" y2="35" stroke="#e2e8f0" stroke-width="1"/>
+            <g id="gold-macd-hist"></g>
+            <path id="gold-macd-line" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+            <path id="gold-signal-line" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,2"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">青: MACDライン / 赤: シグナルライン</div>
+      </div>
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>RSI (14)</span>
+          <span class="indicator-val" id="gold-rsi-val" style="color:var(--primary)">52.4</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="goldRsi" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="14" x2="800" y2="14" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <line x1="0" y1="49" x2="800" y2="49" stroke="#16a34a" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <text x="4" y="12" fill="#dc2626" font-size="8" opacity="0.8">70</text>
+            <text x="4" y="48" fill="#16a34a" font-size="8" opacity="0.8">30</text>
+            <path id="gold-rsi-line" fill="none" stroke="#7c3aed" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">赤点線: 買われ過ぎ(70) / 緑点線: 売られ過ぎ(30)</div>
+      </div>
+    </div>
+
+    <div class="section-label">// 本日の分析投稿（例）</div>
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">07:30 JST</span>
+            <span class="analysis-pair-tag tag-gold">XAUUSD</span>
+            <span class="direction-tag bull">上目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">東京オープン前</span>
+        </div>
+        <div class="analysis-body">
+          ゴールドは昨日の高値 <span class="analysis-price-mark">$2,341</span> を前に上値が重い展開。<br>
+          ただし <span class="sr-line support">$2,310</span> のサポートが強く、ここからの押し目買いを検討。<br>
+          <strong>MA20（$2,318）を価格が上回っている限り上目線を維持</strong>。MACDはゴールデンクロス後でヒストグラムが拡大中。<br>
+          → <span class="analysis-price-mark">$2,310〜2,315</span> での押し目でロング、TP <span class="resist">$2,345</span>、SL $2,298
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">12:00 JST</span>
+            <span class="analysis-pair-tag tag-gold">XAUUSD</span>
+            <span class="direction-tag neutral">様子見</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">昼間アップデート</span>
+        </div>
+        <div class="analysis-body">
+          <span class="analysis-price-mark">$2,334</span> 付近でレンジ推移中。<span class="sr-line resist">$2,341</span> のレジスタンスに2度当たって上値が重い。<br>
+          RSI 52前後で中立圏。<strong>明確なブレイクアウトが確認されるまで新規エントリーは見送り。</strong><br>
+          → $2,341 をしっかり抜けてきた場合は <span class="analysis-price-mark">$2,360</span> を次のターゲットに。
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">21:00 JST</span>
+            <span class="analysis-pair-tag tag-gold">XAUUSD</span>
+            <span class="direction-tag bull">上目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">NY市場オープン</span>
+        </div>
+        <div class="analysis-body">
+          NYオープンで <span class="sr-line resist">$2,341</span> のレジスタンスを上抜け。<strong>ブレイクアウト確認</strong>。<br>
+          $2,341 がサポートに転換するかを確認後エントリー。<br>
+          MACDヒストグラム拡大・RSI 58まで上昇で上昇モメンタム維持。<br>
+          → TP1 <span class="analysis-price-mark">$2,355</span> / TP2 <span class="analysis-price-mark">$2,370</span>、SL $2,328
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= USD/JPY PANEL ========= -->
+  <div id="panel-usdjpy" class="pair-panel">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">本日の方向性</div>
+        <div class="stat-val" style="color:var(--red)">下目線</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">RSI (14)</div>
+        <div class="stat-val" id="usdjpy-rsi-stat" style="color:var(--primary)">44.8</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要サポート</div>
+        <div class="stat-val" style="color:var(--green);font-size:1.1rem">155.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要レジスタンス</div>
+        <div class="stat-val" style="color:var(--red);font-size:1.1rem">158.00</div>
+      </div>
+    </div>
+
+    <div class="price-header">
+      <div>
+        <div class="price-pair-name">ドル円（USD/JPY）</div>
+        <div class="price-main">
+          <div class="price-val down" id="usdjpy-price">157.432</div>
+          <div class="price-change down" id="usdjpy-change">▼ −0.328 (−0.21%)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:2rem">
+        <div class="live-dot-wrap"><div class="live-dot"></div>LIVE</div>
+        <div class="price-ohlc" id="usdjpy-ohlc">始値：157.760<br>高値：157.950<br>安値：157.310<br>スプレッド：0.3pip</div>
+      </div>
+    </div>
+
+    <div class="section-label">// ドル円 チャート（1H）</div>
+    <div class="chart-wrap">
+      <div class="chart-label">
+        <span>ローソク足 1時間足</span>
+        <div class="ma-legend">
+          <div class="ma-item"><div class="ma-line" style="background:#2563eb"></div><span>MA20</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#d97706"></div><span>MA50</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#7c3aed"></div><span>MA200</span></div>
+        </div>
+      </div>
+      <div class="svg-area" id="usdChartWrap" style="height:200px">
+        <svg id="usdChart" viewBox="0 0 800 180" preserveAspectRatio="none" style="height:200px">
+          <defs>
+            <linearGradient id="usdGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2563eb" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="36" x2="800" y2="36" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="72" x2="800" y2="72" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="108" x2="800" y2="108" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="144" x2="800" y2="144" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line id="usd-support" x1="0" y1="0" x2="800" y2="0" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <line id="usd-resist"  x1="0" y1="0" x2="800" y2="0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <path id="usd-area" fill="url(#usdGrad)"/>
+          <path id="usd-line" fill="none" stroke="#2563eb" stroke-width="2.2"/>
+          <path id="usd-ma20" fill="none" stroke="#2563eb" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,2"/>
+          <g id="usd-signals"></g>
+          <line id="usd-cursor" x1="0" y1="0" x2="0" y2="180" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" display="none"/>
+          <circle id="usd-cdot" cx="0" cy="0" r="4" fill="#2563eb" stroke="white" stroke-width="2" display="none"/>
+        </svg>
+        <div class="tooltip" id="usd-tooltip"></div>
+      </div>
+    </div>
+
+    <div class="sub-charts">
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>MACD (12,26,9)</span>
+          <span class="indicator-val" id="usd-macd-val" style="color:var(--red)">−0.182</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="usdMacd" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="35" x2="800" y2="35" stroke="#e2e8f0" stroke-width="1"/>
+            <g id="usd-macd-hist"></g>
+            <path id="usd-macd-line" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+            <path id="usd-signal-line" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,2"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">青: MACDライン / 赤: シグナルライン</div>
+      </div>
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>RSI (14)</span>
+          <span class="indicator-val" id="usd-rsi-val" style="color:var(--primary)">44.8</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="usdRsi" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="14" x2="800" y2="14" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <line x1="0" y1="49" x2="800" y2="49" stroke="#16a34a" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <text x="4" y="12" fill="#dc2626" font-size="8" opacity="0.8">70</text>
+            <text x="4" y="48" fill="#16a34a" font-size="8" opacity="0.8">30</text>
+            <path id="usd-rsi-line" fill="none" stroke="#7c3aed" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">赤点線: 買われ過ぎ(70) / 緑点線: 売られ過ぎ(30)</div>
+      </div>
+    </div>
+
+    <div class="section-label">// 本日の分析投稿（例）</div>
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">07:30 JST</span>
+            <span class="analysis-pair-tag tag-usdjpy">USD/JPY</span>
+            <span class="direction-tag bear">下目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">東京オープン前</span>
+        </div>
+        <div class="analysis-body">
+          ドル円は昨日の <span class="sr-line resist">158.00</span> での反落後、下落トレンドが継続中。<br>
+          <strong>MA20が上値抵抗として機能しており、価格がMAの下で推移している限り売り目線。</strong><br>
+          MACDはデッドクロス済み、ヒストグラムはマイナス圏で拡大中。<br>
+          → <span class="analysis-price-mark">157.80〜158.00</span> での戻りでショート、TP <span class="support">155.50</span>、SL 158.35
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">14:00 JST</span>
+            <span class="analysis-pair-tag tag-usdjpy">USD/JPY</span>
+            <span class="direction-tag bear">下目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">東京クローズ</span>
+        </div>
+        <div class="analysis-body">
+          157.43 付近まで下落。<span class="sr-line support">157.00</span> の心理的節目に注目。<br>
+          RSI 44.8 で中立〜売られ気味。まだ売られ過ぎ圏ではなく、下値余地あり。<br>
+          <strong>157.00 を割り込めば 156.00 → 155.50 への下落加速を想定。</strong>
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">21:00 JST</span>
+            <span class="analysis-pair-tag tag-usdjpy">USD/JPY</span>
+            <span class="direction-tag neutral">様子見</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">NY市場オープン</span>
+        </div>
+        <div class="analysis-body">
+          NY時間に入り <span class="sr-line support">157.00</span> でいったん下げ止まり。RSI 40前後で過売れ気味に。<br>
+          <strong>157.00 のサポートで反発するか、明日の米指標を控えて動きにくい局面。</strong><br>
+          → 新規エントリーは様子見。157.00 割れ確認後にショート再検討。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= GBP/JPY PANEL ========= -->
+  <div id="panel-gbpjpy" class="pair-panel">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">本日の方向性</div>
+        <div class="stat-val" style="color:var(--green)">上目線</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">RSI (14)</div>
+        <div class="stat-val" id="gbpjpy-rsi-stat" style="color:var(--primary)">61.2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要サポート</div>
+        <div class="stat-val" style="color:var(--green);font-size:1.1rem">197.50</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">主要レジスタンス</div>
+        <div class="stat-val" style="color:var(--red);font-size:1.1rem">201.00</div>
+      </div>
+    </div>
+
+    <div class="price-header">
+      <div>
+        <div class="price-pair-name">ポンド円（GBP/JPY）</div>
+        <div class="price-main">
+          <div class="price-val up" id="gbpjpy-price">199.875</div>
+          <div class="price-change up" id="gbpjpy-change">▲ +0.643 (+0.32%)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:2rem">
+        <div class="live-dot-wrap"><div class="live-dot"></div>LIVE</div>
+        <div class="price-ohlc" id="gbpjpy-ohlc">始値：199.232<br>高値：200.120<br>安値：198.950<br>スプレッド：0.8pip</div>
+      </div>
+    </div>
+
+    <div class="section-label">// ポンド円 チャート（1H）</div>
+    <div class="chart-wrap">
+      <div class="chart-label">
+        <span>ローソク足 1時間足</span>
+        <div class="ma-legend">
+          <div class="ma-item"><div class="ma-line" style="background:#2563eb"></div><span>MA20</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#d97706"></div><span>MA50</span></div>
+          <div class="ma-item"><div class="ma-line" style="background:#7c3aed"></div><span>MA200</span></div>
+        </div>
+      </div>
+      <div class="svg-area" id="gbpChartWrap" style="height:200px">
+        <svg id="gbpChart" viewBox="0 0 800 180" preserveAspectRatio="none" style="height:200px">
+          <defs>
+            <linearGradient id="gbpGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="36" x2="800" y2="36" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="72" x2="800" y2="72" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="108" x2="800" y2="108" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="144" x2="800" y2="144" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line id="gbp-support" x1="0" y1="0" x2="800" y2="0" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <line id="gbp-resist"  x1="0" y1="0" x2="800" y2="0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+          <path id="gbp-area" fill="url(#gbpGrad)"/>
+          <path id="gbp-line" fill="none" stroke="#7c3aed" stroke-width="2.2"/>
+          <path id="gbp-ma20" fill="none" stroke="#2563eb" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,2"/>
+          <g id="gbp-signals"></g>
+          <line id="gbp-cursor" x1="0" y1="0" x2="0" y2="180" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" display="none"/>
+          <circle id="gbp-cdot" cx="0" cy="0" r="4" fill="#7c3aed" stroke="white" stroke-width="2" display="none"/>
+        </svg>
+        <div class="tooltip" id="gbp-tooltip"></div>
+      </div>
+    </div>
+
+    <div class="sub-charts">
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>MACD (12,26,9)</span>
+          <span class="indicator-val" id="gbp-macd-val" style="color:var(--green)">+0.354</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="gbpMacd" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="35" x2="800" y2="35" stroke="#e2e8f0" stroke-width="1"/>
+            <g id="gbp-macd-hist"></g>
+            <path id="gbp-macd-line" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+            <path id="gbp-signal-line" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,2"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">青: MACDライン / 赤: シグナルライン</div>
+      </div>
+      <div class="sub-chart">
+        <div class="sub-chart-title">
+          <span>RSI (14)</span>
+          <span class="indicator-val" id="gbp-rsi-val" style="color:var(--primary)">61.2</span>
+        </div>
+        <div class="svg-area" style="height:80px">
+          <svg id="gbpRsi" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:80px">
+            <line x1="0" y1="14" x2="800" y2="14" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <line x1="0" y1="49" x2="800" y2="49" stroke="#16a34a" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+            <text x="4" y="12" fill="#dc2626" font-size="8" opacity="0.8">70</text>
+            <text x="4" y="48" fill="#16a34a" font-size="8" opacity="0.8">30</text>
+            <path id="gbp-rsi-line" fill="none" stroke="#7c3aed" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem">赤点線: 買われ過ぎ(70) / 緑点線: 売られ過ぎ(30)</div>
+      </div>
+    </div>
+
+    <div class="section-label">// 本日の分析投稿（例）</div>
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">07:30 JST</span>
+            <span class="analysis-pair-tag tag-gbpjpy">GBP/JPY</span>
+            <span class="direction-tag bull">上目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">東京オープン前</span>
+        </div>
+        <div class="analysis-body">
+          ポンド円は <span class="sr-line support">197.50</span> のサポートで先週に強く反発し、上昇トレンドが継続。<br>
+          <strong>MA20・MA50ともに上向きで、ゴールデンクロス後の強い上昇局面。</strong><br>
+          RSI 61で買われ過ぎでなく、モメンタムに余力あり。<br>
+          → <span class="analysis-price-mark">199.00〜199.50</span> での押し目でロング、TP <span class="resist">200.50</span> → 201.00
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">15:00 JST</span>
+            <span class="analysis-pair-tag tag-gbpjpy">GBP/JPY</span>
+            <span class="direction-tag bull">上目線</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">ロンドンオープン</span>
+        </div>
+        <div class="analysis-body">
+          ロンドン時間に入り 200.00 の節目を突破。<strong>200.00 がサポートに転換するか確認中。</strong><br>
+          ポンドは英国CPI好調を背景に強い動き。ファンダメンタルとテクニカルが一致する局面。<br>
+          → TP1 <span class="analysis-price-mark">200.50</span> 達成。TP2 <span class="resist">201.00</span> を狙いトレイリングSLで保有継続。
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <div class="analysis-meta">
+            <span class="analysis-time">21:30 JST</span>
+            <span class="analysis-pair-tag tag-gbpjpy">GBP/JPY</span>
+            <span class="direction-tag neutral">利確検討</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--muted)">NY市場</span>
+        </div>
+        <div class="analysis-body">
+          <span class="sr-line resist">201.00</span> のレジスタンスに到達。RSI 68で買われ過ぎ圏に接近。<br>
+          <strong>201.00 付近では利確を優先。上抜けれければ202.00方向への延長も。</strong><br>
+          → ポジション保有者は201.00付近で半分利確、残りはSLをBEP（損益分岐点）まで引き上げ。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>FXテクニカル分析・発信代行のご依頼</h3>
+    <p>ゴールド・ドル円・ポンド円を中心に毎日3回、LINEオープンチャットやSNS向けにテクニカル分析を発信します。</p>
+    <a href="../#contact" class="cta-btn">相談する →</a>
+  </div>
+
+</div>
+
+<script>
+  const W = 800, H = 180;
+
+  /* ---- FX PAIRS CONFIG ---- */
+  const pairs = {
+    gold:   { base: 2322.2,  volatility: 1.2,  decimals: 2, prefix: '$',  support: 2310, resist: 2341, color: '#d97706' },
+    usdjpy: { base: 157.760, volatility: 0.015, decimals: 3, prefix: '',  support: 157.00, resist: 158.00, color: '#2563eb' },
+    gbpjpy: { base: 199.232, volatility: 0.025, decimals: 3, prefix: '',  support: 197.50, resist: 201.00, color: '#7c3aed' },
+  };
+  const prices = {};
+  const macdData = {};
+  const rsiData = {};
+
+  Object.keys(pairs).forEach(key => {
+    const p = pairs[key];
+    const arr = [];
+    let cur = p.base;
+    for (let i = 0; i < 60; i++) {
+      cur += (Math.random() - 0.47) * p.volatility * 8;
+      arr.push(parseFloat(cur.toFixed(p.decimals)));
+    }
+    prices[key] = arr;
+    macdData[key] = genMacd(arr);
+    rsiData[key] = genRsi(arr);
+  });
+
+  function genMacd(arr) {
+    const ema = (data, n) => {
+      const k = 2 / (n + 1); let e = data[0];
+      return data.map(v => { e = v * k + e * (1 - k); return e; });
+    };
+    const e12 = ema(arr, 12), e26 = ema(arr, 26);
+    const macd = arr.map((_, i) => e12[i] - e26[i]);
+    const signal = ema(macd, 9);
+    return { macd, signal };
+  }
+
+  function genRsi(arr) {
+    const rsi = [50];
+    for (let i = 1; i < arr.length; i++) {
+      const diff = arr[i] - arr[i-1];
+      const gain = diff > 0 ? diff : 0, loss = diff < 0 ? -diff : 0;
+      let ag = gain, al = loss;
+      for (let j = Math.max(0, i-13); j < i; j++) {
+        const d = arr[j+1] - arr[j];
+        ag += d > 0 ? d : 0;
+        al += d < 0 ? -d : 0;
+      }
+      const n = Math.min(i, 14);
+      ag /= n; al /= n;
+      rsi.push(al === 0 ? 100 : parseFloat((100 - 100 / (1 + ag / al)).toFixed(1)));
+    }
+    return rsi;
+  }
+
+  /* ---- RENDER CHART ---- */
+  function toPoints(arr, minV, maxV) {
+    const range = maxV - minV || 1;
+    return arr.map((p, i) => ({
+      x: (i / (arr.length - 1)) * W,
+      y: H - ((p - minV) / range) * (H - 24) - 12,
+      v: p
+    }));
+  }
+
+  function renderMainChart(key) {
+    const arr = prices[key];
+    const p = pairs[key];
+    const minV = Math.min(...arr) - p.volatility * 3;
+    const maxV = Math.max(...arr) + p.volatility * 3;
+    const pts = toPoints(arr, minV, maxV);
+
+    const d = 'M' + pts.map(pt => `${pt.x},${pt.y}`).join('L');
+    document.getElementById(`${key === 'gold' ? 'gold' : key === 'usdjpy' ? 'usd' : 'gbp'}-line`).setAttribute('d', d);
+    document.getElementById(`${key === 'gold' ? 'gold' : key === 'usdjpy' ? 'usd' : 'gbp'}-area`).setAttribute('d', `M0,${H} L` + pts.map(pt => `${pt.x},${pt.y}`).join('L') + `L${W},${H}Z`);
+
+    const prefix = key === 'gold' ? 'gold' : key === 'usdjpy' ? 'usd' : 'gbp';
+
+    // MA20
+    const ma20 = arr.map((_, i) => arr.slice(Math.max(0, i-19), i+1).reduce((a,b)=>a+b,0) / Math.min(20, i+1));
+    const ma20pts = toPoints(ma20, minV, maxV);
+    document.getElementById(`${prefix}-ma20`).setAttribute('d', 'M' + ma20pts.map(pt => `${pt.x},${pt.y}`).join('L'));
+
+    // Support / Resist lines
+    const supY = H - ((p.support - minV) / (maxV - minV)) * (H - 24) - 12;
+    const resY = H - ((p.resist - minV) / (maxV - minV)) * (H - 24) - 12;
+    document.getElementById(`${prefix}-support`).setAttribute('y1', supY);
+    document.getElementById(`${prefix}-support`).setAttribute('y2', supY);
+    document.getElementById(`${prefix}-resist`).setAttribute('y1', resY);
+    document.getElementById(`${prefix}-resist`).setAttribute('y2', resY);
+
+    // Price display
+    const last = arr[arr.length - 1];
+    const diff = last - p.base;
+    const pct = ((diff / p.base) * 100).toFixed(2);
+    const up = diff >= 0;
+    const fmt = v => p.prefix + (p.decimals === 2 ? v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(3));
+
+    const priceEl = document.getElementById(`${key}-price`);
+    const changeEl = document.getElementById(`${key}-change`);
+    if (priceEl) {
+      priceEl.textContent = fmt(last);
+      priceEl.style.color = up ? 'var(--green)' : 'var(--red)';
+      changeEl.textContent = `${up ? '▲' : '▼'} ${up ? '+' : ''}${diff.toFixed(p.decimals)} (${up?'+':''}${pct}%)`;
+      changeEl.className = 'price-change ' + (up ? 'up' : 'down');
+    }
+
+    // Tab price
+    const tabEl = document.getElementById(`tab-${key}-price`);
+    if (tabEl) { tabEl.textContent = fmt(last); tabEl.className = 'pair-price-inline ' + (up ? 'up' : 'down'); }
+
+    // Signals
+    const sigG = document.getElementById(`${prefix}-signals`);
+    sigG.innerHTML = '';
+    [[12,'BUY'],[28,'SELL'],[44,'BUY'],[56,'SELL']].forEach(([i, type]) => {
+      const pt = pts[Math.min(i, pts.length-1)];
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y); c.setAttribute('r', 5);
+      c.setAttribute('fill', type === 'BUY' ? '#16a34a' : '#dc2626');
+      c.setAttribute('stroke', 'white'); c.setAttribute('stroke-width', '2');
+      sigG.appendChild(c);
+    });
+  }
+
+  function renderMacd(key) {
+    const prefix = key === 'gold' ? 'gold' : key === 'usdjpy' ? 'usd' : 'gbp';
+    const { macd, signal } = macdData[key];
+    const MH = 70, MW = 800;
+    const maxM = Math.max(...macd.map(Math.abs)) || 1;
+
+    const histG = document.getElementById(`${prefix}-macd-hist`);
+    histG.innerHTML = '';
+    macd.forEach((v, i) => {
+      const x = (i / (macd.length - 1)) * MW;
+      const barH = (Math.abs(v) / maxM) * 28;
+      const y = v >= 0 ? MH/2 - barH : MH/2;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', x - 4); rect.setAttribute('y', y);
+      rect.setAttribute('width', 8); rect.setAttribute('height', barH || 1);
+      rect.setAttribute('fill', v >= 0 ? '#16a34a' : '#dc2626');
+      rect.setAttribute('opacity', '0.5');
+      histG.appendChild(rect);
+    });
+
+    const toMacdPt = (arr) => arr.map((v,i) => ({
+      x: (i / (arr.length - 1)) * MW,
+      y: MH/2 - (v / maxM) * 28
+    }));
+    document.getElementById(`${prefix}-macd-line`).setAttribute('d', 'M' + toMacdPt(macd).map(p=>`${p.x},${p.y}`).join('L'));
+    document.getElementById(`${prefix}-signal-line`).setAttribute('d', 'M' + toMacdPt(signal).map(p=>`${p.x},${p.y}`).join('L'));
+
+    const last = macd[macd.length-1];
+    const el = document.getElementById(`${prefix}-macd-val`);
+    if (el) { el.textContent = (last >= 0 ? '+' : '') + last.toFixed(3); el.style.color = last >= 0 ? 'var(--green)' : 'var(--red)'; }
+  }
+
+  function renderRsi(key) {
+    const prefix = key === 'gold' ? 'gold' : key === 'usdjpy' ? 'usd' : 'gbp';
+    const rsi = rsiData[key];
+    const pts = rsi.map((v, i) => ({
+      x: (i / (rsi.length - 1)) * 800,
+      y: 70 - (v / 100) * 70
+    }));
+    document.getElementById(`${prefix}-rsi-line`).setAttribute('d', 'M' + pts.map(p=>`${p.x},${p.y}`).join('L'));
+    const last = rsi[rsi.length - 1];
+    ['val','stat'].forEach(s => {
+      const el = document.getElementById(`${key === 'gold' ? 'gold' : key}-rsi-${s}`);
+      if (el) { el.textContent = last; el.style.color = last > 70 ? 'var(--red)' : last < 30 ? 'var(--green)' : 'var(--primary)'; }
+    });
+    const usdEl = document.getElementById('usdjpy-rsi-stat');
+    const gbpEl = document.getElementById('gbpjpy-rsi-stat');
+    if (key === 'usdjpy' && usdEl) { usdEl.textContent = last; }
+    if (key === 'gbpjpy' && gbpEl) { gbpEl.textContent = last; }
+  }
+
+  function renderAll() {
+    Object.keys(pairs).forEach(key => {
+      renderMainChart(key);
+      renderMacd(key);
+      renderRsi(key);
+    });
+  }
+  renderAll();
+
+  /* ---- TICKER ---- */
+  const tickerPairs = [
+    {n:'XAUUSD', k:'gold'}, {n:'USDJPY', k:'usdjpy'}, {n:'GBPJPY', k:'gbpjpy'},
+    {n:'EURUSD', base:1.0854, d:4, c:'+0.12%', up:true, static:true},
+    {n:'GBPUSD', base:1.2701, d:4, c:'-0.05%', up:false, static:true},
+    {n:'EURJPY', base:170.84, d:3, c:'+0.24%', up:true, static:true},
+    {n:'AUDJPY', base:103.22, d:3, c:'-0.18%', up:false, static:true},
+    {n:'USDJPY', k:'usdjpy'}, {n:'XAUUSD', k:'gold'}, {n:'GBPJPY', k:'gbpjpy'},
+  ];
+  const ti = document.getElementById('tickerInner');
+  [...tickerPairs, ...tickerPairs].forEach(t => {
+    const el = document.createElement('div'); el.className = 'ticker-item';
+    const priceStr = t.static ? t.base.toFixed(t.d) : '...';
+    const changeStr = t.static ? t.c : '';
+    const isUp = t.static ? t.up : true;
+    el.innerHTML = `<span class="ticker-pair">${t.n}</span><span class="ticker-price" id="ticker-${t.n}-${Math.random().toString(36).slice(2,5)}">${priceStr}</span><span class="${isUp?'up':'down'}">${isUp?'▲':'▼'} ${changeStr}</span>`;
+    ti.appendChild(el);
+  });
+
+  /* ---- SESSIONS ---- */
+  function updateSessions() {
+    const now = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo'}));
+    const h = now.getHours();
+    const sessions = [
+      {label:'東京', active: h >= 9 && h < 17},
+      {label:'ロンドン', active: h >= 15 && h < 24},
+      {label:'NY', active: h >= 22 || h < 6},
+    ];
+    document.getElementById('sessionInfo').innerHTML = sessions
+      .map(s => `<span class="session-tag ${s.active ? 'session-active' : 'session-inactive'}">${s.label}</span>`)
+      .join('');
+  }
+  updateSessions();
+
+  /* ---- CLOCK ---- */
+  function updateClock() {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('ja-JP') + ' JST';
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  /* ---- LIVE UPDATE ---- */
+  setInterval(() => {
+    Object.keys(pairs).forEach(key => {
+      const p = pairs[key];
+      const arr = prices[key];
+      const last = arr[arr.length - 1];
+      arr.push(parseFloat((last + (Math.random() - 0.48) * p.volatility * 6).toFixed(p.decimals)));
+      if (arr.length > 60) arr.shift();
+      macdData[key] = genMacd(arr);
+      rsiData[key] = genRsi(arr);
+    });
+    renderAll();
+    updateSessions();
+  }, 3000);
+
+  /* ---- PAIR SWITCH ---- */
+  function switchPair(pair) {
+    document.querySelectorAll('.pair-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-pair="${pair}"]`).classList.add('active');
+    document.querySelectorAll('.pair-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${pair}`).classList.add('active');
+  }
+
+  /* ---- TOOLTIP ---- */
+  function setupTooltip(wrapId, key, tooltipId, cursorId, dotId) {
+    const wrap = document.getElementById(wrapId);
+    const tooltip = document.getElementById(tooltipId);
+    const cursor = document.getElementById(cursorId);
+    const dot = document.getElementById(dotId);
+    const p = pairs[key];
+    if (!wrap || !tooltip) return;
+
+    wrap.addEventListener('mousemove', (e) => {
+      const rect = wrap.getBoundingClientRect();
+      const xRatio = (e.clientX - rect.left) / rect.width;
+      const idx = Math.max(0, Math.min(prices[key].length-1, Math.round(xRatio * (prices[key].length-1))));
+      const arr = prices[key];
+      const minV = Math.min(...arr) - p.volatility * 3;
+      const maxV = Math.max(...arr) + p.volatility * 3;
+      const pts = toPoints(arr, minV, maxV);
+      const pt = pts[idx];
+      const svgX = pt.x, svgY = pt.y;
+      const screenX = (svgX / W) * rect.width;
+      const screenY = (svgY / H) * rect.height;
+
+      if (cursor) { cursor.setAttribute('x1', svgX); cursor.setAttribute('x2', svgX); cursor.style.display = 'block'; }
+      if (dot) { dot.setAttribute('cx', svgX); dot.setAttribute('cy', svgY); dot.style.display = 'block'; }
+      tooltip.style.display = 'block';
+      tooltip.textContent = p.prefix + pt.v.toFixed(p.decimals);
+      tooltip.style.left = (screenX - tooltip.offsetWidth / 2) + 'px';
+      tooltip.style.top = Math.max(0, screenY - tooltip.offsetHeight - 12) + 'px';
+    });
+    wrap.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+      if (cursor) cursor.style.display = 'none';
+      if (dot) dot.style.display = 'none';
+    });
+  }
+
+  setupTooltip('goldChartWrap', 'gold',   'gold-tooltip', 'gold-cursor', 'gold-cdot');
+  setupTooltip('usdChartWrap',  'usdjpy', 'usd-tooltip',  'usd-cursor',  'usd-cdot');
+  setupTooltip('gbpChartWrap',  'gbpjpy', 'gbp-tooltip',  'gbp-cursor',  'gbp-cdot');
+</script>
+</body>
+</html>
