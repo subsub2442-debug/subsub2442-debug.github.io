@@ -275,8 +275,34 @@
 </div>
 
 <script>
+  // 東証取引時間チェック（平日 9:00-11:30 / 12:30-15:30 JST）
+  function isMarketOpen() {
+    const now = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo'}));
+    const dow = now.getDay(); // 0=日, 6=土
+    if (dow === 0 || dow === 6) return false;
+    const h = now.getHours(), m = now.getMinutes();
+    const t = h * 60 + m;
+    return (t >= 9*60 && t < 11*60+30) || (t >= 12*60+30 && t < 15*60+30);
+  }
+
+  function getMarketStatusLabel() {
+    const now = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo'}));
+    const dow = now.getDay();
+    if (dow === 0 || dow === 6) return '休場中（土日）';
+    const h = now.getHours(), m = now.getMinutes();
+    const t = h * 60 + m;
+    if (t < 9*60) return '開場前';
+    if (t >= 11*60+30 && t < 12*60+30) return '昼休み';
+    if (t >= 15*60+30) return '閉場後';
+    return null;
+  }
+
   // Clock
-  function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('ja-JP') + ' JST'; }
+  function updateClock() {
+    const status = getMarketStatusLabel();
+    const timeStr = new Date().toLocaleTimeString('ja-JP') + ' JST';
+    document.getElementById('clock').textContent = status ? `${timeStr}　【${status}】` : timeStr;
+  }
   setInterval(updateClock, 1000); updateClock();
 
   // Ticker
@@ -346,14 +372,44 @@
   }
 
   renderChart();
+  updateMarketStatus();
 
-  // Live update every 2s
+  function updateMarketStatus() {
+    const open = isMarketOpen();
+    const statusLabel = getMarketStatusLabel();
+
+    // LIVE バッジ切り替え
+    document.querySelectorAll('.live-badge').forEach(el => {
+      if (open) {
+        el.innerHTML = '<span class="live-dot"></span>LIVE';
+        el.style.color = 'var(--green)';
+      } else {
+        el.innerHTML = `<span style="font-size:0.9rem">🔒</span> ${statusLabel || '閉場'}`;
+        el.style.color = 'var(--muted)';
+      }
+    });
+
+    // チャートヘッダの変動表示
+    const changeEl = document.getElementById('liveChange');
+    if (!open && statusLabel) {
+      changeEl.textContent = `【${statusLabel}】前日終値 ¥2,768`;
+      changeEl.style.color = 'var(--muted)';
+      changeEl.className = 'chart-change-val';
+    }
+  }
+
+  // Live update every 2s（取引時間中のみ動かす）
   setInterval(() => {
+    if (!isMarketOpen()) {
+      updateMarketStatus();
+      return;
+    }
     const last = prices[prices.length - 1];
     prices.push(Math.round(last + (Math.random() - 0.46) * 14));
     if (prices.length > 60) prices.shift();
     renderChart();
     updateWatchlist();
+    updateMarketStatus();
     if (Math.random() < 0.15) addLiveLog();
   }, 2000);
 
